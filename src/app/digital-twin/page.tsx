@@ -4,16 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-// 더미 환자 데이터 (디지털 트윈 상세 페이지와 동일하게 유지)
-const DUMMY_PATIENTS = [
-  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.' },
-  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.' },
-  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.' },
-  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.' },
-  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.' },
-];
-
-// DNA 분석 상태 타입 정의 (app/digital-twin/page.tsx와 동일하게 유지)
+// DNA 분석 상태 타입 정의: 가능한 모든 상태 문자열 리터럴을 정확히 나열
 type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
@@ -26,7 +17,21 @@ type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// DNA 분석 상태 매핑 (app/digital-twin/page.tsx와 동일하게 유지)
+// 환자 데이터 인터페이스
+interface Patient {
+  id: string;
+  name: string;
+  dnaStatus: DNAStatusKey; // dnaStatus 속성이 DNAStatusKey 타입임을 명시
+  dnaId: string;
+  age?: number;
+  height?: string;
+  weight?: string;
+  ethnicity?: string;
+  occupation?: string;
+  healthSummary?: string;
+}
+
+// DNA 분석 상태 매핑: Record 유틸리티 타입을 사용하여 DNAStatusKey와 string 매핑을 명시
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -40,19 +45,14 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 환자 데이터 인터페이스 (더미 데이터에 맞춰 속성 추가)
-interface Patient {
-  id: string;
-  name: string;
-  dnaStatus: DNAStatusKey;
-  dnaId: string;
-  age?: number;
-  height?: string;
-  weight?: string;
-  ethnicity?: string;
-  occupation?: string;
-  healthSummary?: string;
-}
+// 더미 환자 데이터: Patient[] 타입으로 명시하여 타입스크립트가 정확히 검사하도록 함
+const DUMMY_PATIENTS: Patient[] = [
+  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.' },
+  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.' },
+  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.' },
+  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.' },
+  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.' },
+];
 
 
 export default function DigitalTwinDashboard() {

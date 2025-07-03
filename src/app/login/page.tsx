@@ -1,7 +1,8 @@
 // app/login/page.tsx
-'use client'; // 클라이언트 컴포넌트로 지정
+'use client';
+
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // useEffect 추가
 import { useRouter } from 'next/navigation';
 
 export default function Login() {
@@ -10,14 +11,27 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  // 현재 가상으로 저장된 비밀번호 (localStorage에서 로드)
+  const [storedPassword, setStoredPassword] = useState('qweasd31d'); // 초기 기본 비밀번호
+
+  useEffect(() => {
+    // localStorage에서 'simulated_password'를 로드하고 없으면 기본값 사용
+    const savedSimulatedPassword = localStorage.getItem('simulated_password');
+    if (savedSimulatedPassword) {
+      setStoredPassword(savedSimulatedPassword);
+    } else {
+      // localStorage에 비밀번호가 없으면 기본 비밀번호를 저장
+      localStorage.setItem('simulated_password', 'qweasd31d');
+    }
+  }, []);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // 에러 메시지 초기화
+    setError('');
 
-    // 가상 로그인 로직 (실제 서비스에서는 백엔드 API 호출로 대체)
-    if (email === 'demo@predictivcare.com' && password === 'qweasd31d') {
-      // 로그인 성공 시 더미 토큰 저장
-      localStorage.setItem('token', 'dummy_auth_token_12345');
+    // 가상 로그인 로직: 이메일과 localStorage에 저장된 비밀번호로 확인
+    if (email === 'demo@predictivcare.com' && password === storedPassword) {
+      localStorage.setItem('token', 'dummy_auth_token_12345'); // 로그인 성공 시 토큰 저장
       router.push('/digital-twin'); // 환자 목록 페이지로 이동
     } else {
       setError('이메일 또는 비밀번호가 올바르지 않습니다.');
@@ -30,7 +44,7 @@ export default function Login() {
         {/* PredictivAI 로고 */}
         <div className="mb-6">
           <Image
-            src="/predictivai_logo.png" // 로고 이미지 경로 (public 폴더에 이미지 파일을 넣어주세요)
+            src="/predictivai_logo.png"
             alt="PredictivAI Logo"
             width={200}
             height={50}
@@ -59,7 +73,7 @@ export default function Login() {
             <input
               type="email"
               placeholder="이메일"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" // 글씨색 설정
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -69,13 +83,13 @@ export default function Login() {
             <input
               type="password"
               placeholder="비밀번호"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" // 글씨색 설정
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>} {/* 에러 메시지 표시 */}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 font-semibold"
@@ -108,7 +122,7 @@ export default function Login() {
         <div className="mt-6 flex justify-center space-x-4">
           <a href="#" className="flex items-center text-gray-700 hover:text-blue-600">
             <Image
-              src="/app_store_badge.png" // App Store 뱃지 이미지 경로 (public 폴더에 이미지 파일을 넣어주세요)
+              src="/app_store_badge.png"
               alt="App Store"
               width={120}
               height={40}
@@ -116,7 +130,7 @@ export default function Login() {
           </a>
           <a href="#" className="flex items-center text-gray-700 hover:text-blue-600">
             <Image
-              src="/google_play_badge.png" // Google Play 뱃지 이미지 경로 (public 폴더에 이미지 파일을 넣어주세요)
+              src="/google_play_badge.png"
               alt="Google Play"
               width={120}
               height={40}

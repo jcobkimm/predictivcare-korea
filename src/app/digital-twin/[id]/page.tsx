@@ -3,19 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // Image 컴포넌트 임포트 확인
+import Image from 'next/image';
 
-// 더미 환자 데이터 (app/digital-twin/page.tsx와 동일하게 유지)
-// DNAStatusKey와 정확히 일치하는 문자열을 사용해야 합니다.
-const DUMMY_PATIENTS = [
-  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.' },
-  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.' },
-  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.' },
-  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.' },
-  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.' },
-];
-
-// DNA 분석 상태 타입 정의 (이전과 동일, 모든 가능한 키를 포함)
+// DNA 분석 상태 타입 정의: 가능한 모든 상태 문자열 리터럴을 정확히 나열
 type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
@@ -28,7 +18,21 @@ type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// DNA 분석 상태 매핑 (DNAStatusKey와 Record 유틸리티 타입 사용)
+// 환자 데이터 인터페이스
+interface Patient {
+  id: string;
+  name: string;
+  dnaStatus: DNAStatusKey; // dnaStatus 속성이 DNAStatusKey 타입임을 명시
+  dnaId: string;
+  age?: number;
+  height?: string;
+  weight?: string;
+  ethnicity?: string;
+  occupation?: string;
+  healthSummary?: string;
+}
+
+// DNA 분석 상태 매핑: Record 유틸리티 타입을 사용하여 DNAStatusKey와 string 매핑을 명시
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -42,35 +46,28 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 환자 데이터 인터페이스 (DUMMY_PATIENTS에 맞춰 속성 정의)
-interface Patient {
-  id: string;
-  name: string;
-  dnaStatus: DNAStatusKey; // DNAStatusKey 타입 사용
-  dnaId: string;
-  age?: number;
-  height?: string;
-  weight?: string;
-  ethnicity?: string;
-  occupation?: string;
-  healthSummary?: string;
-}
+// 더미 환자 데이터: Patient[] 타입으로 명시하여 타입스크립트가 정확히 검사하도록 함
+const DUMMY_PATIENTS: Patient[] = [
+  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.' },
+  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.' },
+  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.' },
+  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.' },
+  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.' },
+];
 
 export default function DigitalTwinDetail({ params }: { params: { id: string } }) {
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [patient, setPatient] = useState<Patient | null>(null); // Patient 타입으로 명확히 지정
+  const [patient, setPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
-    // URL 파라미터로 받은 id를 사용하여 환자 데이터 찾기
     const foundPatient = DUMMY_PATIENTS.find(p => p.id === id);
-    // foundPatient가 Patient | undefined 타입이므로, Patient | null 타입인 patient 상태에 직접 할당 가능.
-    // 'undefined'는 'null'에 할당 가능하므로 이 부분은 타입적으로 문제가 없습니다.
+    // foundPatient는 Patient | undefined 타입이 될 수 있습니다.
+    // setPatient는 Patient | null 타입을 받으므로, undefined를 null로 변환하여 할당합니다.
     setPatient(foundPatient || null);
   }, [id]);
 
   if (!patient) {
-    // patient가 null일 경우 로딩 메시지 또는 에러 메시지 표시
     return (
       <div className="flex items-center justify-center min-h-screen text-gray-700 text-lg font-semibold">
         환자 정보를 불러오는 중이거나 찾을 수 없습니다...
@@ -317,9 +314,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
 }
 
 // === 아이콘 컴포넌트들 (SVG) ===
-// 이 아이콘들은 Sidebar.tsx에 정의된 아이콘과 중복될 수 있습니다.
-// 실제 프로젝트에서는 별도의 파일 (예: components/Icons.tsx)에 정의하고 임포트하여
-// 중복을 제거하고 관리의 용이성을 높이는 것이 좋습니다.
 const CheckIcon = () => (
   <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>

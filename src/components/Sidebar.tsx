@@ -17,81 +17,94 @@ export default function Sidebar() {
   // 토큰이 없거나 로그인/초기 페이지인 경우 사이드바를 숨김
   if (!token || pathname === '/login' || pathname === '/') return null;
 
-  // 현재 경로가 디지털 트윈 상세 페이지인지 확인 (예: /digital-twin/patient-1)
-  const isDigitalTwinDetail = pathname.startsWith('/digital-twin/') && pathname.split('/').length > 2;
-  // 현재 환자 ID 추출 (상세 페이지일 경우에만 유효)
-  const patientId = isDigitalTwinDetail ? pathname.split('/')[2] : null;
+  // 현재 경로가 디지털 트윈 상세 페이지 또는 그 하위 페이지인지 확인
+  const isDigitalTwinDetailView = pathname.startsWith('/digital-twin/') && pathname.split('/').length > 2;
+  // 현재 환자 ID 추출 (상세 페이지 뷰일 경우에만 유효)
+  const patientId = isDigitalTwinDetailView ? pathname.split('/')[2] : null;
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-teal-500 to-blue-700 text-white p-6 space-y-6 shadow-lg"> {/* 원본 사이트 색상에 더 가깝게 조정 */}
-      <h2 className="text-2xl font-bold mb-4 text-center">PREDICTIV</h2> {/* 로고 텍스트 중앙 정렬 */}
-      <nav className="flex flex-col space-y-2"> {/* 간격 조정 */}
-        {isDigitalTwinDetail && patientId ? ( // 디지털 트윈 상세 페이지일 경우
+    <aside className="w-64 bg-gradient-to-b from-teal-500 to-blue-700 text-white p-6 space-y-6 shadow-lg relative">
+      <h2 className="text-2xl font-bold mb-4 text-center">PREDICTIV</h2>
+      <nav className="flex flex-col space-y-2">
+
+        {/* 대시보드 홈 / 환자 목록 버튼 */}
+        {/* 디지털 트윈 상세 뷰일 때는 '대시보드 홈'으로, 그 외에는 '환자 목록'으로 표시 */}
+        <Link
+          href="/digital-twin"
+          className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
+            pathname === '/digital-twin' ? 'bg-blue-800' : 'hover:bg-blue-600'
+          }`}
+        >
+          <DashboardIcon />
+          <span className="font-semibold ml-3">
+            {isDigitalTwinDetailView ? '대시보드 홈' : '환자 목록'}
+          </span>
+        </Link>
+
+        {isDigitalTwinDetailView && patientId && ( // 디지털 트윈 상세 페이지 뷰일 때만 상세 메뉴 표시
           <>
+            {/* 디지털 트윈 상세 페이지 링크 */}
             <Link
               href={`/digital-twin/${patientId}`}
               className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname === `/digital-twin/${patientId}` ? 'bg-blue-800' : 'hover:bg-blue-600' // 활성/호버 색상 조정
+                pathname === `/digital-twin/${patientId}` ? 'bg-blue-800' : 'hover:bg-blue-600'
               }`}
             >
-              <HomeIcon /> {/* 홈 아이콘 추가 (아래에 정의) */}
-              <span className="font-semibold ml-3">대시보드 홈</span>
+              <DigitalTwinIcon />
+              <span className="font-semibold ml-3">디지털 트윈</span>
             </Link>
-            <Link
-              href={`/digital-twin/${patientId}/diseases`}
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname.includes('/diseases') ? 'bg-blue-800' : 'hover:bg-blue-600'
-              }`}
-            >
-              <DiseaseIcon /> {/* 질환 아이콘 추가 (아래에 정의) */}
-              <span className="font-semibold ml-3">질환</span>
-            </Link>
-            <Link
-              href={`/digital-twin/${patientId}/drugs`}
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname.includes('/drugs') ? 'bg-blue-800' : 'hover:bg-blue-600'
-              }`}
-            >
-              <DrugIcon /> {/* 약물 아이콘 추가 (아래에 정의) */}
-              <span className="font-semibold ml-3">약물</span>
-            </Link>
-            <Link
-              href={`/digital-twin/${patientId}/wellness`}
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname.includes('/wellness') ? 'bg-blue-800' : 'hover:bg-blue-600'
-              }`}
-            >
-              <WellnessIcon /> {/* 웰니스 아이콘 추가 (아래에 정의) */}
-              <span className="font-semibold ml-3">웰니스</span>
-            </Link>
-            <Link
-              href={`/digital-twin/${patientId}/variants`}
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname.includes('/variants') ? 'bg-blue-800' : 'hover:bg-blue-600'
-              }`}
-            >
-              <VariantIcon /> {/* 변이 아이콘 추가 (아래에 정의) */}
-              <span className="font-semibold ml-3">유전자 변이</span>
-            </Link>
+            {/* 디지털 트윈 하위 메뉴 (들여쓰기) */}
+            <div className="ml-4 space-y-1 border-l border-blue-600 pl-3">
+              <Link
+                href={`/digital-twin/${patientId}/diseases`}
+                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
+                  pathname.includes('/diseases') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                }`}
+              >
+                <DiseaseIcon />
+                <span className="ml-3">질환</span>
+              </Link>
+              <Link
+                href={`/digital-twin/${patientId}/drugs`}
+                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
+                  pathname.includes('/drugs') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                }`}
+              >
+                <DrugIcon />
+                <span className="ml-3">약물</span>
+              </Link>
+              <Link
+                href={`/digital-twin/${patientId}/wellness`}
+                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
+                  pathname.includes('/wellness') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                }`}
+              >
+                <WellnessIcon />
+                <span className="ml-3">건강 관리</span>
+              </Link>
+              <Link
+                href={`/digital-twin/${patientId}/variants`}
+                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
+                  pathname.includes('/variants') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                }`}
+              >
+                <VariantIcon />
+                <span className="ml-3">유전자 변이</span>
+              </Link>
+            </div>
           </>
-        ) : ( // 일반 대시보드 또는 다른 페이지일 경우
-          <>
-            <Link
-              href="/digital-twin"
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname === '/digital-twin' ? 'bg-blue-800' : 'hover:bg-blue-600'
-              }`}
-            >
-              <DashboardIcon /> {/* 대시보드 아이콘 추가 (아래에 정의) */}
-              <span className="font-semibold ml-3">환자 목록</span> {/* "환자 목록"으로 대체 */}
-            </Link>
+        )}
+        
+        {/* 내 프로필, 회사 소개 버튼 (디지털 트윈 상세 뷰가 아닐 때만 표시) */}
+        {!isDigitalTwinDetailView && (
+          <div className="pt-4 border-t border-blue-600">
             <Link
               href="/profile"
               className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
                 pathname === '/profile' ? 'bg-blue-800' : 'hover:bg-blue-600'
               }`}
             >
-              <ProfileIcon /> {/* 프로필 아이콘 추가 (아래에 정의) */}
+              <ProfileIcon />
               <span className="font-semibold ml-3">내 프로필</span>
             </Link>
             <Link
@@ -100,36 +113,44 @@ export default function Sidebar() {
                 pathname === '/about' ? 'bg-blue-800' : 'hover:bg-blue-600'
               }`}
             >
-              <AboutIcon /> {/* 회사 소개 아이콘 추가 (아래에 정의) */}
-              <span className="font-semibold ml-3">회사 소개</span> {/* "회사 소개" 버튼 추가 */}
+              <AboutIcon />
+              <span className="font-semibold ml-3">회사 소개</span>
             </Link>
-          </>
+          </div>
         )}
-        <div className="pt-4 border-t border-blue-600"> {/* 구분선 색상 조정 */}
+
+        {/* 로그아웃 버튼 */}
+        <div className="pt-4 border-t border-blue-600">
           <Link
             href="/logout"
             className="py-2 px-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center"
           >
-            <LogoutIcon /> {/* 로그아웃 아이콘 추가 (아래에 정의) */}
+            <LogoutIcon />
             <span className="font-semibold ml-3">로그아웃</span>
           </Link>
         </div>
       </nav>
+
+      {/* 버전 정보 등 추가 */}
+      <div className="absolute bottom-4 left-0 w-full text-center text-sm text-gray-200">
+        <p>demo user</p>
+        <p>1.1.0 version</p>
+      </div>
     </aside>
   );
 }
 
-// 아이콘 컴포넌트 (간단한 SVG 아이콘 예시, 필요에 따라 교체 또는 라이브러리 사용)
-// 원본 사이드바 이미지에서 보이는 아이콘을 참고하여 유사하게 구성했습니다.
-const HomeIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-  </svg>
-);
-
+// === 아이콘 컴포넌트들 (SVG) === (이전과 동일)
 const DashboardIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
     <path d="M2 11a1 1 0 011-1h14a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM2 7a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 00-2-2H4a2 2 0 00-2 2V7z" />
+  </svg>
+);
+
+const DigitalTwinIcon = () => (
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 6a3 3 0 10-6 0 3 3 0 006 0zM17.885 9.071a1 1 0 00-1.414-1.414L14 10.172l-1.474-1.474a1 1 0 00-1.414 1.414l1.475 1.475-1.475 1.475a1 1 0 001.414 1.414L14 13.828l1.475 1.475a1 1 0 001.414-1.414L15.828 12l1.475-1.475zM12.5 15a.5.5 0 000 1h5a.5.5 0 000-1h-5z" />
+    <path fillRule="evenodd" d="M4 10a4 4 0 014-4h2a4 4 0 014 4v2H4v-2zm0 6a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
   </svg>
 );
 
@@ -151,7 +172,6 @@ const LogoutIcon = () => (
   </svg>
 );
 
-// 임시 아이콘 (원본 사이트 아이콘과 유사하게 변경 필요)
 const DiseaseIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
