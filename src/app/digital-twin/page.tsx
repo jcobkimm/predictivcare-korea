@@ -1,11 +1,13 @@
 // app/digital-twin/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import AddPatientModal from '../../components/AddPatientModal';
+import DeleteConfirmationModal from '../../components/DeleteConfirmationModal'; // DeleteConfirmationModal 임포트
 
-// DNA 분석 상태 타입 정의: 가능한 모든 상태 문자열 리터럴을 정확히 나열
-type DNAStatusKey =
+// DNA 분석 상태 타입 정의 (이전과 동일)
+export type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
   | 'Sample Extracted'
@@ -17,21 +19,7 @@ type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// 환자 데이터 인터페이스
-interface Patient {
-  id: string;
-  name: string;
-  dnaStatus: DNAStatusKey; // dnaStatus 속성이 DNAStatusKey 타입임을 명시
-  dnaId: string;
-  age?: number;
-  height?: string;
-  weight?: string;
-  ethnicity?: string;
-  occupation?: string;
-  healthSummary?: string;
-}
-
-// DNA 분석 상태 매핑: Record 유틸리티 타입을 사용하여 DNAStatusKey와 string 매핑을 명시
+// DNA 분석 상태 매핑 (이전과 동일)
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -45,48 +33,147 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 더미 환자 데이터: Patient[] 타입으로 명시하여 타입스크립트가 정확히 검사하도록 함
-const DUMMY_PATIENTS: Patient[] = [
-  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.' },
-  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.' },
-  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.' },
-  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.' },
-  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.' },
-];
+// 환자 데이터 인터페이스 (백엔드 및 AddPatientModal과 동일하게 유지)
+interface Patient {
+  id: string;
+  name: string; // 성 + 이름
+  firstName: string;
+  lastName: string;
+  dnaStatus: DNAStatusKey;
+  dnaId: string;
+  age?: number;
+  height?: string;
+  weight?: string;
+  ethnicity?: string;
+  occupation?: string;
+  healthSummary?: string;
+  dob?: string;
+  biologicalSex?: string;
+  phoneNumber?: string;
+  address?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  zipcode?: string;
+  country?: string;
+}
 
 
 export default function DigitalTwinDashboard() {
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [searchField, setSearchField] = useState('name');
   const [dnaStatusFilter, setDnaStatusFilter] = useState<DNAStatusKey | 'All'>('All');
   const [showDeletedPatients, setShowDeletedPatients] = useState(false);
-  const [showDisclaimer, setShowDisclaimer] = useState(false); // 면책 조항 팝업 상태
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
-  // 검색 버튼 클릭 시 또는 입력값이 변경될 때마다 필터링 적용
+  const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false); // 삭제 확인 모달 상태
+  const [patientToDelete, setPatientToDelete] = useState<{ id: string; name: string } | null>(null); // 삭제할 환자 정보
+
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('http://localhost:3001/patients');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: Patient[] = await response.json();
+        setPatients(data);
+      } catch (e: any) {
+        setError(`환자 데이터를 불러오는 데 실패했습니다: ${e.message}`);
+        console.error("Failed to fetch patients:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
+  }, []);
+
   const handleSearch = () => {
-    // 필터링 로직은 useState에 의해 이미 실시간으로 적용되고 있음
-    // 실제 백엔드 연동 시, 이 함수 내에서 API 호출을 트리거할 수 있습니다.
+    // 검색 필터링은 filteredPatients에서 자동으로 처리됨
   };
 
-  const filteredPatients = DUMMY_PATIENTS.filter(patient => {
-    // 검색어 필터링
+  const handleAddNewPatient = async (newPatientData: Patient) => {
+    try {
+      const response = await fetch('http://localhost:3001/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPatientData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`환자 추가 실패: ${response.status}`);
+      }
+
+      const addedPatient: Patient = await response.json();
+      setPatients(prevPatients => [...prevPatients, addedPatient]);
+      setIsAddPatientModalOpen(false);
+      alert('새 환자가 성공적으로 추가되었습니다!');
+    } catch (e: any) {
+      alert(`환자 추가 중 오류 발생: ${e.message}`);
+      console.error("Failed to add new patient:", e);
+    }
+  };
+
+  // 환자 삭제 요청 처리 (비밀번호 확인 포함)
+  const handleDeletePatient = async (password: string) => {
+    // 실제 계정의 비밀번호와 비교 (여기서는 localStorage의 가상 비밀번호 사용)
+    const storedSimulatedPassword = localStorage.getItem('simulated_password') || 'qweasd31d';
+    if (password !== storedSimulatedPassword) {
+      alert('비밀번호가 일치하지 않습니다. 삭제할 수 없습니다.');
+      return;
+    }
+
+    if (!patientToDelete) return; // 삭제할 환자 정보 없으면 리턴
+
+    try {
+      const response = await fetch(`http://localhost:3001/patients/${patientToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.status === 204) { // 204 No Content는 성공적인 삭제를 의미
+        setPatients(prevPatients => prevPatients.filter(p => p.id !== patientToDelete.id)); // 프론트엔드 목록에서 제거
+        alert(`${patientToDelete.name} 환자 정보가 성공적으로 삭제되었습니다.`);
+      } else {
+        // NestJS 서비스에서 NotFoundException을 던지면 404 상태 코드를 반환할 수 있음
+        const errorData = await response.json();
+        throw new Error(`환자 삭제 실패: ${errorData.message || response.status}`);
+      }
+    } catch (e: any) {
+      alert(`환자 삭제 중 오류 발생: ${e.message}`);
+      console.error("Failed to delete patient:", e);
+    } finally {
+      setIsDeleteConfirmModalOpen(false); // 모달 닫기
+      setPatientToDelete(null); // 삭제할 환자 정보 초기화
+    }
+  };
+
+
+  const filteredPatients = patients.filter(patient => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     let matchesSearch = true;
 
-    if (searchTerm) { // 검색어가 있을 때만 필터링 적용
+    if (searchTerm) {
       if (searchField === 'name') {
-        matchesSearch = patient.name.toLowerCase().includes(lowerCaseSearchTerm);
+        const fullNameKor = (patient.lastName || '') + (patient.firstName || '');
+        const fullNameEng = (patient.firstName || '') + ' ' + (patient.lastName || '');
+        matchesSearch = fullNameKor.toLowerCase().includes(lowerCaseSearchTerm) ||
+                        fullNameEng.toLowerCase().includes(lowerCaseSearchTerm);
       }
-      // TODO: diseases, symptoms, drugs, genes 필터링 로직 추가 (더미 데이터에 해당 필드 추가 후)
-      // else if (searchField === 'diseases') { matchesSearch = patient.diseases?.toLowerCase().includes(lowerCaseSearchTerm); }
-      // ...
     }
     
-    // DNA 상태 필터링
     const matchesDnaStatus = dnaStatusFilter === 'All' || patient.dnaStatus === dnaStatusFilter;
-
-    // 삭제된 환자 보기는 현재 구현하지 않음 (더미 데이터에 삭제 상태 없음)
-    const matchesDeleted = !showDeletedPatients; // 항상 true로 설정하여 모든 환자 보이게 함
+    const matchesDeleted = !showDeletedPatients;
 
     return matchesSearch && matchesDnaStatus && matchesDeleted;
   });
@@ -95,7 +182,7 @@ export default function DigitalTwinDashboard() {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">환자 대시보드</h1>
 
-      {/* 검색 및 필터링 섹션 - 원본 디자인에 가깝게 조정 */}
+      {/* 검색 및 필터링 섹션 */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-wrap items-center gap-4 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <select
@@ -114,8 +201,8 @@ export default function DigitalTwinDashboard() {
             placeholder={`${searchField === 'name' ? '이름' : searchField === 'diseases' ? '질병' : searchField === 'symptoms' ? '증상' : searchField === 'drugs' ? '약물' : searchField === 'genes' ? '유전자' : ''} 검색...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 rounded-lg p-2 flex-1 min-w-[150px] text-gray-700 placeholder-gray-400"
-            onKeyDown={(e) => { // 엔터 키 입력 시 검색 트리거
+            className="border border-gray-300 rounded-lg p-2 flex-1 min-w-[150px] text-gray-900 placeholder-gray-400"
+            onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSearch();
               }
@@ -138,7 +225,7 @@ export default function DigitalTwinDashboard() {
 
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 ml-auto"
-          onClick={handleSearch} // 검색 버튼 클릭 시 handleSearch 호출
+          onClick={handleSearch}
         >
           검색
         </button>
@@ -154,35 +241,65 @@ export default function DigitalTwinDashboard() {
         </div>
       </div>
 
-      {/* 환자 목록 - 원본 디자인에 가깝게 조정 */}
-      <div className="grid grid-cols-1 gap-6">
-        {filteredPatients.length > 0 ? (
-          filteredPatients.map(patient => (
+      {/* ADD NEW PATIENT 버튼 */}
+      <div className="flex justify-center mb-6">
+        <button
+          className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 flex items-center text-lg font-semibold"
+          onClick={() => setIsAddPatientModalOpen(true)}
+        >
+          <PlusIcon className="w-6 h-6 mr-2" />
+          새 환자 추가
+        </button>
+      </div>
+
+      {/* 환자 목록 */}
+      {loading ? (
+        <div className="text-center py-10 text-gray-600">환자 데이터를 불러오는 중입니다...</div>
+      ) : error ? (
+        <div className="text-center py-10 text-red-600">오류: {error}</div>
+      ) : filteredPatients.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6">
+          {filteredPatients.map(patient => (
             <div
               key={patient.id}
               className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 flex items-center"
             >
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold mr-4 flex-shrink-0">
-                {patient.name.charAt(0)}
+                {patient.lastName ? patient.lastName.charAt(0) : ''}
               </div>
               <div className="flex-grow">
                 <Link href={`/digital-twin/${patient.id}`} className="block">
-                  <h3 className="text-lg font-semibold text-gray-800">{patient.name}</h3>
-                  <p className="text-blue-600 text-sm font-medium">DNA {DNA_STATUS_MAP[patient.dnaStatus]}</p>
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {patient.lastName}{patient.firstName}
+                  </h3>
+                  <p className="text-blue-600 text-sm font-medium">
+                    DNA {DNA_STATUS_MAP[patient.dnaStatus]}
+                  </p>
                   <p className="text-gray-500 text-xs">PREDICTIV ID {patient.dnaId}</p>
+                  {patient.dob && (
+                    <p className="text-gray-500 text-xs">DOB: {patient.dob}</p>
+                  )}
                 </Link>
               </div>
-              <div className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer">
+              <div
+                className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer p-2 relative group" // relative group 추가
+                onClick={(e) => { e.stopPropagation(); setPatientToDelete({ id: patient.id, name: patient.lastName + patient.firstName }); setIsDeleteConfirmModalOpen(true); }} // 클릭 이벤트 추가
+              >
                 &#8226;&#8226;&#8226;
+                <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
+                  <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    삭제
+                  </button>
+                </div>
               </div>
             </div>
-          ))
-        ) : (
-          <p className="text-gray-600 text-lg col-span-full text-center py-10">
-            해당 조건에 맞는 환자가 없습니다.
-          </p>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-600 text-lg col-span-full text-center py-10">
+          해당 조건에 맞는 환자가 없습니다.
+        </p>
+      )}
 
       {/* Disclaimer 텍스트 및 팝업 트리거 */}
       <div className="fixed bottom-4 left-4 text-gray-600 text-sm cursor-pointer hover:underline z-40"
@@ -207,6 +324,32 @@ export default function DigitalTwinDashboard() {
           </div>
         </div>
       )}
+
+      {/* 새 환자 추가 모달 */}
+      {isAddPatientModalOpen && (
+        <AddPatientModal
+          isOpen={isAddPatientModalOpen}
+          onClose={() => setIsAddPatientModalOpen(false)}
+          onAddPatient={handleAddNewPatient}
+        />
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {isDeleteConfirmModalOpen && patientToDelete && (
+        <DeleteConfirmationModal
+          isOpen={isDeleteConfirmModalOpen}
+          onClose={() => setIsDeleteConfirmModalOpen(false)}
+          onConfirmDelete={handleDeletePatient}
+          patientName={patientToDelete.name}
+        />
+      )}
     </div>
   );
 }
+
+// PlusIcon (ADD NEW PATIENT 버튼용)
+const PlusIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+  </svg>
+);

@@ -18,20 +18,6 @@ type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// 환자 데이터 인터페이스
-interface Patient {
-  id: string;
-  name: string;
-  dnaStatus: DNAStatusKey; // dnaStatus 속성이 DNAStatusKey 타입임을 명시
-  dnaId: string;
-  age?: number;
-  height?: string;
-  weight?: string;
-  ethnicity?: string;
-  occupation?: string;
-  healthSummary?: string;
-}
-
 // DNA 분석 상태 매핑: Record 유틸리티 타입을 사용하여 DNAStatusKey와 string 매핑을 명시
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
@@ -46,14 +32,39 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 더미 환자 데이터: Patient[] 타입으로 명시하여 타입스크립트가 정확히 검사하도록 함
+// 환자 데이터 인터페이스 (백엔드 및 AddPatientModal과 동일하게 유지)
+interface Patient {
+  id: string;
+  name: string; // 성 + 이름
+  firstName: string; // <-- 추가
+  lastName: string;  // <-- 추가
+  dnaStatus: DNAStatusKey; // DNAStatusKey 타입 사용
+  dnaId: string;
+  age?: number;
+  height?: string;
+  weight?: string;
+  ethnicity?: string;
+  occupation?: string;
+  healthSummary?: string;
+  dob?: string;
+  biologicalSex?: string;
+  phoneNumber?: string;
+  address?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  zipcode?: string;
+  country?: string;
+}
+
 const DUMMY_PATIENTS: Patient[] = [
-  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.' },
-  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.' },
-  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.' },
-  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.' },
-  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.' },
+  { id: 'patient-1', name: '김철수', firstName: '철수', lastName: '김', dnaStatus: 'Completed', dnaId: 'PRDV-C4M6-2E1N-G8FM', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.', dob: '07/01/1980', biologicalSex: 'Male', phoneNumber: '010-1234-5678', address: '서울시 강남구', address2: '테헤란로 123', city: '서울', state: '서울', zipcode: '12345', country: '대한민국' },
+  { id: 'patient-2', name: '이영희', firstName: '영희', lastName: '이', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-B9K0-3F7S-H2QL', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.', dob: '05/15/1995', biologicalSex: 'Female', phoneNumber: '010-9876-5432', address: '부산시 해운대구', address2: '센텀남대로 45', city: '부산', state: '부산', zipcode: '60000', country: '대한민국'  },
+  { id: 'patient-3', name: '박민준', firstName: '민준', lastName: '박', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-A1C2-D3E4-F5G6', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.', dob: '03/20/1965', biologicalSex: 'Male', phoneNumber: '010-1122-3344', address: '대구시 중구', address2: '동성로 10', city: '대구', state: '대구', zipcode: '70000', country: '대한민국'  },
+  { id: 'patient-4', name: '최지아', firstName: '지아', lastName: '최', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-X7Y8-Z9A1-B2C3', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.', dob: '09/01/2000', biologicalSex: 'Female', phoneNumber: '010-5566-7788', address: '광주시 동구', address2: '충장로 50', city: '광주', state: '광주', zipcode: '50000', country: '대한민국'  },
+  { id: 'patient-5', name: '정우진', firstName: '우진', lastName: '정', dnaStatus: 'Sample Received', dnaId: 'PRDV-P5Q6-R7S8-T9U0', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.', dob: '11/10/1975', biologicalSex: 'Male', phoneNumber: '010-9988-7766', address: '대전시 서구', address2: '둔산대로 100', city: '대전', state: '대전', zipcode: '30000', country: '대한민국'  },
 ];
+
 
 export default function DigitalTwinDetail({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -62,8 +73,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
 
   useEffect(() => {
     const foundPatient = DUMMY_PATIENTS.find(p => p.id === id);
-    // foundPatient는 Patient | undefined 타입이 될 수 있습니다.
-    // setPatient는 Patient | null 타입을 받으므로, undefined를 null로 변환하여 할당합니다.
     setPatient(foundPatient || null);
   }, [id]);
 
@@ -93,7 +102,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         <div className="flex items-center mb-4 sm:mb-0">
           <Image src="/predictiv_logo_small.png" alt="Predictiv Logo" width={30} height={30} className="mr-3"/>
           <h1 className="text-xl font-bold text-gray-800">
-            안녕하세요, {patient.name}님!
+            안녕하세요, {patient.lastName}{patient.firstName}님! {/* 성 이름 (붙여쓰기) */}
             <p className="text-sm font-normal text-gray-500">
               디지털 트윈 상세 정보. 현재 상태: <span className="text-blue-600">{DNA_STATUS_MAP[patient.dnaStatus]}</span>
             </p>
