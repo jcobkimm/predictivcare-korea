@@ -1,10 +1,19 @@
 // app/digital-twin/page.tsx
-'use client'; // 클라이언트 컴포넌트로 지정 - 반드시 맨 위에 있어야 합니다.
+'use client';
 
-import { useState } from 'react'; // useState 훅 임포트 확인
-import Link from 'next/link'; // Link 컴포넌트 임포트 확인
+import { useState } from 'react';
+import Link from 'next/link';
 
-// DNA 분석 상태 타입 정의
+// 더미 환자 데이터 (디지털 트윈 상세 페이지와 동일하게 유지)
+const DUMMY_PATIENTS = [
+  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.' },
+  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.' },
+  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799', age: 60, height: '170cm', weight: '80kg', ethnicity: '아시아인', occupation: '교수', healthSummary: '나이에 비해 활력이 좋은 유전적 특성을 가지고 있습니다. 하지만 특정 암 질환에 대한 가족력이 있어 정기적인 검진이 필요합니다. 건강한 생활 습관을 유지하는 것이 중요합니다.' },
+  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800', age: 25, height: '165cm', weight: '50kg', ethnicity: '아시아인', occupation: '학생', healthSummary: '드문 유전 질환 보인자 가능성이 있어 추가 상담이 필요한 상태입니다. 현재 증상은 없지만, 미래의 건강 관리를 위해 유전 상담을 받는 것이 권장됩니다.' },
+  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801', age: 50, height: '180cm', weight: '75kg', ethnicity: '아시아인', occupation: '엔지니어', healthSummary: '영양소 흡수 및 대사에 관련된 유전적 특성이 발견되었습니다. 특정 비타민 결핍에 취약할 수 있으므로, 맞춤형 영양 보충제 섭취를 고려해볼 수 있습니다. 전반적으로 건강한 편입니다.' },
+];
+
+// DNA 분석 상태 타입 정의 (app/digital-twin/page.tsx와 동일하게 유지)
 type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
@@ -17,15 +26,7 @@ type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// 환자 데이터 인터페이스 정의
-interface Patient {
-  id: string;
-  name: string;
-  dnaStatus: DNAStatusKey;
-  dnaId: string;
-}
-
-// DNA 분석 상태 매핑 (사용자 설명서 기반)
+// DNA 분석 상태 매핑 (app/digital-twin/page.tsx와 동일하게 유지)
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -39,14 +40,20 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 더미 환자 데이터
-const DUMMY_PATIENTS: Patient[] = [
-  { id: 'patient-1', name: '김철수', dnaStatus: 'Completed', dnaId: 'PRDV-2210-8015-1797' },
-  { id: 'patient-2', name: '이영희', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-2210-8015-1798' },
-  { id: 'patient-3', name: '박민준', dnaStatus: 'Building Digital Twin', dnaId: 'PRDV-2210-8015-1799' },
-  { id: 'patient-4', name: '최지아', dnaStatus: 'Awaiting Genetic Counseling', dnaId: 'PRDV-2210-8015-1800' },
-  { id: 'patient-5', name: '정우진', dnaStatus: 'Sample Received', dnaId: 'PRDV-2210-8015-1801' },
-];
+// 환자 데이터 인터페이스 (더미 데이터에 맞춰 속성 추가)
+interface Patient {
+  id: string;
+  name: string;
+  dnaStatus: DNAStatusKey;
+  dnaId: string;
+  age?: number;
+  height?: string;
+  weight?: string;
+  ethnicity?: string;
+  occupation?: string;
+  healthSummary?: string;
+}
+
 
 export default function DigitalTwinDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,14 +62,31 @@ export default function DigitalTwinDashboard() {
   const [showDeletedPatients, setShowDeletedPatients] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false); // 면책 조항 팝업 상태
 
-  const filteredPatients = DUMMY_PATIENTS.filter(patient => {
-    const matchesSearch = searchTerm === '' ||
-      (searchField === 'name' && patient.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // TODO: diseases, symptoms, drugs, genes 필드는 더미 데이터에 없으므로, 실제 데이터 연동 시 구현 필요
+  // 검색 버튼 클릭 시 또는 입력값이 변경될 때마다 필터링 적용
+  const handleSearch = () => {
+    // 필터링 로직은 useState에 의해 이미 실시간으로 적용되고 있음
+    // 실제 백엔드 연동 시, 이 함수 내에서 API 호출을 트리거할 수 있습니다.
+  };
 
+  const filteredPatients = DUMMY_PATIENTS.filter(patient => {
+    // 검색어 필터링
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    let matchesSearch = true;
+
+    if (searchTerm) { // 검색어가 있을 때만 필터링 적용
+      if (searchField === 'name') {
+        matchesSearch = patient.name.toLowerCase().includes(lowerCaseSearchTerm);
+      }
+      // TODO: diseases, symptoms, drugs, genes 필터링 로직 추가 (더미 데이터에 해당 필드 추가 후)
+      // else if (searchField === 'diseases') { matchesSearch = patient.diseases?.toLowerCase().includes(lowerCaseSearchTerm); }
+      // ...
+    }
+    
+    // DNA 상태 필터링
     const matchesDnaStatus = dnaStatusFilter === 'All' || patient.dnaStatus === dnaStatusFilter;
-    const matchesDeleted = !showDeletedPatients;
+
+    // 삭제된 환자 보기는 현재 구현하지 않음 (더미 데이터에 삭제 상태 없음)
+    const matchesDeleted = !showDeletedPatients; // 항상 true로 설정하여 모든 환자 보이게 함
 
     return matchesSearch && matchesDnaStatus && matchesDeleted;
   });
@@ -91,6 +115,11 @@ export default function DigitalTwinDashboard() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="border border-gray-300 rounded-lg p-2 flex-1 min-w-[150px] text-gray-700 placeholder-gray-400"
+            onKeyDown={(e) => { // 엔터 키 입력 시 검색 트리거
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}
           />
         </div>
 
@@ -107,7 +136,10 @@ export default function DigitalTwinDashboard() {
           </select>
         </div>
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 ml-auto">
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 ml-auto"
+          onClick={handleSearch} // 검색 버튼 클릭 시 handleSearch 호출
+        >
           검색
         </button>
         <div className="flex items-center">
@@ -153,9 +185,9 @@ export default function DigitalTwinDashboard() {
       </div>
 
       {/* Disclaimer 텍스트 및 팝업 트리거 */}
-      <div className="fixed bottom-4 left-4 text-gray-600 text-sm cursor-pointer hover:underline"
+      <div className="fixed bottom-4 left-4 text-gray-600 text-sm cursor-pointer hover:underline z-40"
            onClick={() => setShowDisclaimer(true)}>
-        *Disclaimer
+        *면책 조항
       </div>
 
       {/* Disclaimer 팝업 모달 */}
