@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// DNA 분석 상태 타입 정의 (이전과 동일)
+// DNA 분석 상태 타입 정의: 가능한 모든 상태 문자열 리터럴을 정확히 나열
 type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
@@ -18,7 +18,7 @@ type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// DNA 분석 상태 매핑 (이전과 동일)
+// DNA 분석 상태 매핑: Record 유틸리티 타입을 사용하여 DNAStatusKey와 string 매핑을 명시
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -36,9 +36,9 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
 interface Patient {
   id: string;
   name: string; // 성 + 이름
-  firstName: string;
-  lastName: string;
-  dnaStatus: DNAStatusKey;
+  firstName: string; // <-- 추가
+  lastName: string;  // <-- 추가
+  dnaStatus: DNAStatusKey; // DNAStatusKey 타입 사용
   dnaId: string;
   age?: number;
   height?: string;
@@ -57,9 +57,6 @@ interface Patient {
   country?: string;
 }
 
-// DUMMY_PATIENTS는 API에서 가져오므로 여기서 필요 없지만,
-// 현재 API가 환자 상세를 제공하지 않으므로 임시로 유지합니다.
-// 실제 API 구현 시 제거되어야 합니다.
 const DUMMY_PATIENTS: Patient[] = [
   { id: 'patient-1', name: '김철수', firstName: '철수', lastName: '김', dnaStatus: 'Completed', dnaId: 'PRDV-C4M6-2E1N-G8FM', age: 45, height: '175cm', weight: '70kg', ethnicity: '아시아인', occupation: '연구원', healthSummary: '유전적으로 심혈관 질환 위험이 약간 높지만, 현재까지는 양호한 건강 상태를 유지하고 있습니다. 규칙적인 운동과 건강한 식단으로 예방적 관리가 중요합니다.', dob: '07/01/1980', biologicalSex: 'Male', phoneNumber: '010-1234-5678', address: '서울시 강남구', address2: '테헤란로 123', city: '서울', state: '서울', zipcode: '12345', country: '대한민국' },
   { id: 'patient-2', name: '이영희', firstName: '영희', lastName: '이', dnaStatus: 'DNA Analyzed', dnaId: 'PRDV-B9K0-3F7S-H2QL', age: 30, height: '160cm', weight: '55kg', ethnicity: '아시아인', occupation: '디자이너', healthSummary: '특정 약물에 대한 반응성이 낮을 수 있는 유전적 특성이 발견되었습니다. 약물 복용 시 전문가와 상담하여 용량을 조절하는 것이 좋습니다. 전반적인 건강 상태는 매우 양호합니다.', dob: '05/15/1995', biologicalSex: 'Female', phoneNumber: '010-9876-5432', address: '부산시 해운대구', address2: '센텀남대로 45', city: '부산', state: '부산', zipcode: '60000', country: '대한민국'  },
@@ -75,34 +72,8 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
   const [patient, setPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
-    // 실제 API에서 환자 상세 정보를 가져오도록 수정 (GET /patients/:id)
-    const fetchPatientDetail = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/patients/${id}`); // NestJS 백엔드 상세 API
-        if (!response.ok) {
-          // 더미 데이터에서 찾도록 폴백 (API가 아직 상세 조회 미구현 시)
-          const foundPatientFromDummy = DUMMY_PATIENTS.find(p => p.id === id);
-          if (foundPatientFromDummy) {
-            setPatient(foundPatientFromDummy);
-            return;
-          }
-          throw new Error(`환자 상세 정보를 불러오는 데 실패했습니다: ${response.status}`);
-        }
-        const data: Patient = await response.json();
-        setPatient(data);
-      } catch (e: any) {
-        // API 오류 시 더미 데이터에서 찾도록 폴백
-        const foundPatientFromDummy = DUMMY_PATIENTS.find(p => p.id === id);
-        if (foundPatientFromDummy) {
-          setPatient(foundPatientFromDummy);
-        } else {
-          console.error("Failed to fetch patient detail from API and dummy:", e);
-          setPatient(null); // 환자를 찾을 수 없음
-        }
-      }
-    };
-
-    fetchPatientDetail();
+    const foundPatient = DUMMY_PATIENTS.find(p => p.id === id);
+    setPatient(foundPatient || null);
   }, [id]);
 
   if (!patient) {
@@ -131,7 +102,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         <div className="flex items-center mb-4 sm:mb-0">
           <Image src="/predictiv_logo_small.png" alt="Predictiv Logo" width={30} height={30} className="mr-3"/>
           <h1 className="text-xl font-bold text-gray-800">
-            안녕하세요, {patient.lastName}{patient.firstName}님!
+            안녕하세요, {patient.lastName}{patient.firstName}님! {/* 성 이름 (붙여쓰기) */}
             <p className="text-sm font-normal text-gray-500">
               디지털 트윈 상세 정보. 현재 상태: <span className="text-blue-600">{DNA_STATUS_MAP[patient.dnaStatus]}</span>
             </p>
@@ -163,10 +134,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 기본 정보 */}
           <section className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
-              기본 정보
-              <Link href={`/digital-twin/${patient.id}/edit/basics`} className="text-gray-400 hover:text-blue-600"> {/* Link로 감싸기 */}
-                <EditIcon /> {/* 펜 아이콘 */}
-              </Link>
+              기본 정보 <CheckIcon />
             </h2>
             <div className="text-gray-700 space-y-2 text-sm">
               <p><strong>나이:</strong> {patient.age || 'N/A'}</p>
@@ -180,10 +148,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 생활 습관 */}
           <section className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
-              생활 습관
-              <Link href={`/digital-twin/${patient.id}/edit/lifestyle`} className="text-gray-400 hover:text-blue-600">
-                <EditIcon />
-              </Link>
+              생활 습관 <CheckIcon />
             </h2>
             <div className="text-gray-700 space-y-2 text-sm">
               <p><strong>운동:</strong> N/A</p>
@@ -199,28 +164,16 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
             <h2 className="text-xl font-semibold text-gray-800 mb-4">건강 이력</h2>
             <div className="text-gray-700 space-y-4">
               <div className="flex justify-between items-center">
-                <p className="font-medium">의료 기록</p> <span className="text-gray-500">N/A</span>
-                <Link href={`/digital-twin/${patient.id}/edit/medical-history`} className="text-gray-400 hover:text-blue-600">
-                  <EditIcon />
-                </Link>
+                <p className="font-medium">의료 기록</p> <span className="text-gray-500">N/A</span> <CheckIcon />
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">알레르기</p> <span className="text-gray-500">없음</span>
-                <Link href={`/digital-twin/${patient.id}/edit/allergies`} className="text-gray-400 hover:text-blue-600">
-                  <EditIcon />
-                </Link>
+                <p className="font-medium">알레르기</p> <span className="text-gray-500">없음</span> <CheckIcon />
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">가족력</p> <span className="text-gray-500">N/A</span>
-                <Link href={`/digital-twin/${patient.id}/edit/family-history`} className="text-gray-400 hover:text-blue-600">
-                  <EditIcon />
-                </Link>
+                <p className="font-medium">가족력</p> <span className="text-gray-500">N/A</span> <CheckIcon />
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">복용 약물</p> <span className="text-gray-500">N/A</span>
-                <Link href={`/digital-twin/${patient.id}/edit/medications-history`} className="text-gray-400 hover:text-blue-600">
-                  <EditIcon />
-                </Link>
+                <p className="font-medium">복용 약물</p> <span className="text-gray-500">N/A</span> <CheckIcon />
               </div>
             </div>
           </section>
@@ -370,13 +323,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
 }
 
 // === 아이콘 컴포넌트들 (SVG) ===
-// EditIcon 추가
-const EditIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-  </svg>
-);
-
 const CheckIcon = () => (
   <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
