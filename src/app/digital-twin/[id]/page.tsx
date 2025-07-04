@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import AboutTestModal from '/Users/jacobkim/Desktop/predictivcare-korea/components/AboutTestModal'; // <-- AboutTestModal 임포트 경로 확인!
+import AboutTestModal from '../../../components/AboutTestModal'; // <-- AboutTestModal 임포트 경로 확인!
 
 // DNA 분석 상태 타입 정의 (이전과 동일)
 export type DNAStatusKey =
@@ -61,7 +61,7 @@ interface Patient {
 export default function DigitalTwinDetail({ params }: { params: { id: string } }) {
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [showAboutTestModal, setShowAboutTestModal] = useState(false); // <-- AboutTestModal 상태 추가
+  const [showAboutTestModal, setShowAboutTestModal] = useState(false);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -138,10 +138,16 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* 상단 헤더 */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-lg shadow-md mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-lg shadow-xl mb-6">
         <div className="flex items-center mb-4 sm:mb-0">
           <button onClick={() => setShowAboutTestModal(true)} className="p-2 rounded-full hover:bg-gray-100 transition-colors mr-2">
-            <QuestionMarkIcon /> {/* 물음표 아이콘 */}
+            {/* 이 줄을 다음 Image 컴포넌트로 교체해주세요: */}
+            <Image
+              src="/question_mark_icon.png" // <-- 물음표 아이콘 이미지 경로 (public 폴더에 넣어주세요)
+              alt="About this test"
+              width={24} // 적절한 크기로 조정
+              height={24} // 적절한 크기로 조정
+            />
           </button>
           <Image src="/predictiv_logo_small.png" alt="Predictiv Logo" width={30} height={30} className="mr-3"/>
           <h1 className="text-xl font-bold text-gray-800">
@@ -153,10 +159,10 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-2 text-gray-600 text-sm">
           <span className="flex items-center font-semibold text-gray-700">
-            <UserGroupIcon /> 분석된 질환: {isNewPatientWithPendingDNA ? missingInfoText : '28594'}
+            분석된 질환: {isNewPatientWithPendingDNA ? missingInfoText : '28594'}
           </span>
           <span className="flex items-center font-semibold text-gray-700">
-            <GeneIcon /> 발견된 변이: {isNewPatientWithPendingDNA ? missingInfoText : '17950'}
+            발견된 변이: {isNewPatientWithPendingDNA ? missingInfoText : '17950'}
           </span>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">검색</button>
         </div>
@@ -177,12 +183,13 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 기본 정보 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
+              <Image src="/user_info_icon.png" alt="User Info" width={30} height={30} className="mr-2" />
               기본 정보
               <span onClick={() => handleEditClick('기본 정보')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
                 <EditIcon />
               </span>
             </h2>
-            <div className="text-gray-700 space-y-2 text-sm">
+            <div className="text-gray-700 space-y-2 text-sm text-left"> {/* <-- 여기에 text-left 추가 */}
               <p><strong>나이:</strong> {patient.age || missingInfoText}</p>
               <p><strong>키:</strong> {patient.height || missingInfoText}</p>
               <p><strong>체중:</strong> {patient.weight || missingInfoText}</p>
@@ -194,12 +201,13 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 생활 습관 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
+              <Image src="/lifestyle_ico.png" alt="Lifestyle" width={30} height={30} className="mr-2" />
               생활 습관
               <span onClick={() => handleEditClick('생활 습관')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
                 <EditIcon />
               </span>
             </h2>
-            <div className="text-gray-700 space-y-2 text-sm">
+            <div className="text-gray-700 space-y-2 text-sm text-left"> {/* <-- 여기에 text-left 추가 */}
               <p><strong>운동:</strong> {missingInfoText}</p>
               <p><strong>흡연:</strong> {missingInfoText}</p>
               <p><strong>소금 섭취:</strong> {missingInfoText}</p>
@@ -211,27 +219,43 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 건강 이력 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">건강 이력</h2>
-            <div className="text-gray-700 space-y-4">
+            <div className="text-gray-700 space-y-4 text-left"> {/* <-- 여기에 text-left 추가 */}
               <div className="flex justify-between items-center">
-                <p className="font-medium">의료 기록</p> <span className="text-gray-500">{missingInfoText}</span>
+                <div className="flex items-center">
+                  <Image src="/medical_record_icon.png" alt="Medical Record" width={20} height={20} className="mr-2" />
+                  <p className="font-medium">의료 기록</p>
+                </div>
+                <span className="text-gray-500">{missingInfoText}</span>
                 <span onClick={() => handleEditClick('의료 기록')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
                   <EditIcon />
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">알레르기</p> <span className="text-gray-500">{missingInfoText}</span>
+                <div className="flex items-center">
+                  <Image src="/allergy_icon.png" alt="Allergy" width={20} height={20} className="mr-2" />
+                  <p className="font-medium">알레르기</p>
+                </div>
+                <span className="text-gray-500">{missingInfoText}</span>
                 <span onClick={() => handleEditClick('알레르기')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
                   <EditIcon />
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">가족력</p> <span className="text-gray-500">{missingInfoText}</span>
+                <div className="flex items-center">
+                  <Image src="/family_history_icon.png" alt="Family History" width={20} height={20} className="mr-2" />
+                  <p className="font-medium">가족력</p>
+                </div>
+                <span className="text-gray-500">{missingInfoText}</span>
                 <span onClick={() => handleEditClick('가족력')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
                   <EditIcon />
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">복용 약물</p> <span className="text-gray-500">{missingInfoText}</span>
+                <div className="flex items-center">
+                  <Image src="/medication_icon.png" alt="Medication" width={20} height={20} className="mr-2" />
+                  <p className="font-medium">복용 약물</p>
+                </div>
+                <span className="text-gray-500">{missingInfoText}</span>
                 <span onClick={() => handleEditClick('복용 약물')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
                   <EditIcon />
                 </span>
@@ -271,7 +295,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 )}
               </div>
             </div>
-            <InfoIcon />
           </section>
 
           {/* 약물 반응 */}
@@ -297,7 +320,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 )}
               </div>
             </div>
-            <InfoIcon />
           </section>
 
           {/* 건강 관리 (웰니스 의역) */}
@@ -329,7 +351,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 )}
               </div>
             </div>
-            <InfoIcon />
           </section>
 
           {/* 유전자 상담 */}
@@ -420,24 +441,10 @@ const EditIcon = () => (
   </svg>
 );
 
-const UserGroupIcon = () => (
-  <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zm-6 9a3 3 0 11-6 0 3 3 0 016 0zm11 0a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path fillRule="evenodd" d="M19 13A4 4 0 0115 9h-2l-1-1H7l-1 1H4a4 4 0 00-4 4v2a2 2 0 002 2h16a2 2 0 002-2v-2z" clipRule="evenodd" />
-  </svg>
-);
-
-const GeneIcon = () => (
-  <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" d="M11.973 2.507a.5.5 0 00-.73-.016L6.5 6.787a.5.5 0 00-.142.316l-.014.108V12a.5.5 0 00.5.5h5a.5.5 0 00.5-.5V7.213a.5.5 0 00-.142-.316l-4.743-4.296zM10 16a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-    <path fillRule="evenodd" d="M10 18a.75.75 0 00.75-.75V15h.75a.75.75 0 000-1.5h-1.5a.75.75 0 00-.75.75v1.5c0 .414.336.75.75.75z" clipRule="evenodd" />
-    <path fillRule="evenodd" d="M10.75 2.25a.75.75 0 00-1.5 0v.75H8.5a.75.75 0 000 1.5h1.5a.75.75 0 00.75-.75V2.25z" clipRule="evenodd" />
-  </svg>
-);
-
-const InfoIcon = () => (
-  <svg className="w-6 h-6 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-2 2a1 1 0 100 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
+// QuestionMarkIcon 정의 (이전에 누락되었던 부분)
+const QuestionMarkIcon = () => (
+  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-1 1v2a1 1 0 102 0V8a1 1 0 00-1-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
   </svg>
 );
 
@@ -450,12 +457,5 @@ const PlusIcon = () => (
 const ChatIcon = () => (
   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
     <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-4 4v-4H2a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2zM6 9H4v2h2V9zm8-2H6v2h8V7zm0 4H6v2h8v-2z" clipRule="evenodd" />
-  </svg>
-);
-
-// QuestionMarkIcon 정의 (하단에 추가)
-const QuestionMarkIcon = () => (
-  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-1 1v2a1 1 0 102 0V8a1 1 0 00-1-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
   </svg>
 );

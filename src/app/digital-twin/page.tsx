@@ -249,7 +249,7 @@ export default function DigitalTwinDashboard() {
           {filteredPatients.map(patient => (
             <div
               key={patient.id}
-              className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 flex items-center"
+              className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 border border-gray-100 flex items-center"
             >
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold mr-4 flex-shrink-0">
                 {patient.lastName ? patient.lastName.charAt(0) : ''}

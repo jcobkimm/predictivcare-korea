@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image'; // Image 컴포넌트 임포트
 
 export default function Sidebar() {
   const [token, setToken] = useState<string | null>(null);
@@ -14,25 +15,29 @@ export default function Sidebar() {
     setToken(savedToken);
   }, [pathname]);
 
-  // 토큰이 없거나 로그인/초기 페이지인 경우 사이드바를 숨김
   if (!token || pathname === '/login' || pathname === '/') return null;
 
-  // 현재 경로가 디지털 트윈 상세 페이지 또는 그 하위 페이지인지 확인
   const isDigitalTwinDetailView = pathname.startsWith('/digital-twin/') && pathname.split('/').length > 2;
-  // 현재 환자 ID 추출 (상세 페이지 뷰일 경우에만 유효)
   const patientId = isDigitalTwinDetailView ? pathname.split('/')[2] : null;
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-teal-500 to-blue-700 text-white p-6 space-y-6 shadow-lg relative">
-      <h2 className="text-2xl font-bold mb-4 text-center">PREDICTIV</h2>
+    // 배경 색상을 단색으로 변경 (스크린샷 색상에 맞춰)
+    <aside className="w-64 bg-[#23a96e] text-white p-6 space-y-6 shadow-lg relative"> {/* 임의의 녹색-청록색 지정 */}
+      <div className="mb-4 text-center">
+        <Image 
+          src="/predictiv_logo_sidebar.png" // <-- 사이드바 로고 이미지 경로 (public 폴더에 넣어주세요)
+          alt="PREDICTIV Logo"
+          width={150} // 이미지 크기에 맞게 조정
+          height={40} // 이미지 크기에 맞게 조정
+          className="mx-auto"
+        />
+      </div>
       <nav className="flex flex-col space-y-2">
 
-        {/* 대시보드 홈 / 환자 목록 버튼 */}
-        {/* 디지털 트윈 상세 뷰일 때는 '대시보드 홈'으로, 그 외에는 '환자 목록'으로 표시 */}
         <Link
           href="/digital-twin"
-          className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-            pathname === '/digital-twin' ? 'bg-blue-800' : 'hover:bg-blue-600'
+          className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center ${
+            pathname === '/digital-twin' ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
           }`}
         >
           <DashboardIcon />
@@ -41,24 +46,22 @@ export default function Sidebar() {
           </span>
         </Link>
 
-        {isDigitalTwinDetailView && patientId && ( // 디지털 트윈 상세 페이지 뷰일 때만 상세 메뉴 표시
+        {isDigitalTwinDetailView && patientId && (
           <>
-            {/* 디지털 트윈 상세 페이지 링크 */}
             <Link
               href={`/digital-twin/${patientId}`}
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname === `/digital-twin/${patientId}` ? 'bg-blue-800' : 'hover:bg-blue-600'
+              className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center ${
+                pathname === `/digital-twin/${patientId}` ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
               }`}
             >
               <DigitalTwinIcon />
               <span className="font-semibold ml-3">디지털 트윈</span>
             </Link>
-            {/* 디지털 트윈 하위 메뉴 (들여쓰기) */}
-            <div className="ml-4 space-y-1 border-l border-blue-600 pl-3">
+            <div className="ml-4 space-y-1 border-l border-[#1e8d5a] pl-3">
               <Link
                 href={`/digital-twin/${patientId}/diseases`}
-                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
-                  pathname.includes('/diseases') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center text-sm ${
+                  pathname.includes('/diseases') ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
                 }`}
               >
                 <DiseaseIcon />
@@ -66,8 +69,8 @@ export default function Sidebar() {
               </Link>
               <Link
                 href={`/digital-twin/${patientId}/drugs`}
-                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
-                  pathname.includes('/drugs') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center text-sm ${
+                  pathname.includes('/drugs') ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
                 }`}
               >
                 <DrugIcon />
@@ -75,8 +78,8 @@ export default function Sidebar() {
               </Link>
               <Link
                 href={`/digital-twin/${patientId}/wellness`}
-                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
-                  pathname.includes('/wellness') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center text-sm ${
+                  pathname.includes('/wellness') ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
                 }`}
               >
                 <WellnessIcon />
@@ -84,8 +87,8 @@ export default function Sidebar() {
               </Link>
               <Link
                 href={`/digital-twin/${patientId}/variants`}
-                className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm ${
-                  pathname.includes('/variants') ? 'bg-blue-800' : 'hover:bg-blue-600'
+                className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center text-sm ${
+                  pathname.includes('/variants') ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
                 }`}
               >
                 <VariantIcon />
@@ -95,13 +98,12 @@ export default function Sidebar() {
           </>
         )}
         
-        {/* 내 프로필, 회사 소개 버튼 (디지털 트윈 상세 뷰가 아닐 때만 표시) */}
         {!isDigitalTwinDetailView && (
-          <div className="pt-4 border-t border-blue-600">
+          <div className="pt-4 border-t border-[#1e8d5a]"> {/* 구분선 색상 조정 */}
             <Link
               href="/profile"
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname === '/profile' ? 'bg-blue-800' : 'hover:bg-blue-600'
+              className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center ${
+                pathname === '/profile' ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
               }`}
             >
               <ProfileIcon />
@@ -109,8 +111,8 @@ export default function Sidebar() {
             </Link>
             <Link
               href="/about"
-              className={`py-2 px-3 rounded-lg transition-colors duration-200 flex items-center ${
-                pathname === '/about' ? 'bg-blue-800' : 'hover:bg-blue-600'
+              className={`py-2 px-3 rounded-lg transition-all duration-200 flex items-center ${
+                pathname === '/about' ? 'bg-[#1e8d5a] shadow-md' : 'hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md'
               }`}
             >
               <AboutIcon />
@@ -119,11 +121,10 @@ export default function Sidebar() {
           </div>
         )}
 
-        {/* 로그아웃 버튼 */}
-        <div className="pt-4 border-t border-blue-600">
+        <div className="pt-4 border-t border-[#1e8d5a]"> {/* 구분선 색상 조정 */}
           <Link
             href="/logout"
-            className="py-2 px-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center"
+            className="py-2 px-3 rounded-lg hover:bg-[#2cb275] hover:translate-x-1 hover:shadow-md transition-all duration-200 flex items-center"
           >
             <LogoutIcon />
             <span className="font-semibold ml-3">로그아웃</span>
@@ -131,7 +132,6 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* 버전 정보 등 추가 */}
       <div className="absolute bottom-4 left-0 w-full text-center text-sm text-gray-200">
         <p>demo user</p>
         <p>1.1.0 version</p>
@@ -140,7 +140,7 @@ export default function Sidebar() {
   );
 }
 
-// === 아이콘 컴포넌트들 (SVG) === (이전과 동일)
+// === 아이콘 컴포넌트들 (SVG) === (기존과 동일)
 const DashboardIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
     <path d="M2 11a1 1 0 011-1h14a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM2 7a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 00-2-2H4a2 2 0 00-2 2V7z" />
@@ -188,7 +188,7 @@ const DrugIcon = () => (
 
 const WellnessIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17.885 9.071a1 1 0 00-1.414-1.414L14 10.172l-1.474-1.474a1 1 0 00-1.414 1.414l1.475 1.475-1.475 1.475a1 1 0 001.414 1.414L14 13.828l1.475 1.475a1 1 0 001.414-1.414L15.828 12l1.475-1.475zM12.5 15a.5.5 0 000 1h5a.5.5 0 000-1h-5z" />
+    <path d="M9 6a3 3 0 11-6 0 3 3 0 006 0zM17.885 9.071a1 1 0 00-1.414-1.414L14 10.172l-1.474-1.474a1 1 0 00-1.414 1.414l1.475 1.475-1.475 1.475a1 1 0 001.414 1.414L14 13.828l1.475 1.475a1 1 0 001.414-1.414L15.828 12l1.475-1.475zM12.5 15a.5.5 0 000 1h5a.5.5 0 000-1h-5z" />
     <path fillRule="evenodd" d="M4 10a4 4 0 014-4h2a4 4 0 014 4v2H4v-2zm0 6a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
   </svg>
 );
