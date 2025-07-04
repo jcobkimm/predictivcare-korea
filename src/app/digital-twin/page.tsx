@@ -6,7 +6,7 @@ import Link from 'next/link';
 import AddPatientModal from '../../components/AddPatientModal';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 
-// DNA 분석 상태 타입 정의
+// DNA 분석 상태 타입 정의 (이전과 동일)
 export type DNAStatusKey = // <-- 'export' 키워드 확인
   | 'Awaiting Sample'
   | 'Sample Received'
@@ -33,7 +33,7 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 환자 데이터 인터페이스 간소화 (기본 필드만 유지)
+// 환자 데이터 인터페이스 간소화 (백엔드와 동일하게 유지)
 interface Patient {
   id: string;
   name: string; // 성 + 이름

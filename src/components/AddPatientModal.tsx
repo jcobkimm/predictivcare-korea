@@ -2,8 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-// DNAStatusKey 타입을 임포트합니다.
-import type { DNAStatusKey } from '/Users/jacobkim/Desktop/predictivcare-korea/src/app/digital-twin/page'; // <-- 경로 재확인 (../../app/digital-twin/page)
+import type { DNAStatusKey } from '/Users/jacobkim/Desktop/predictivcare-korea/src/app/digital-twin/page'; // DNAStatusKey 임포트 경로 확인
 
 // 환자 ID 생성을 위한 헬퍼 함수
 const generatePredictivId = (): string => {
@@ -46,7 +45,7 @@ interface Patient {
 interface AddPatientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddPatient: (patientData: Patient) => void;
+  onAddPatient: (patientData: Patient) => Promise<void>; // <-- 반환 타입을 Promise<void>로 정확히 명시
 }
 
 export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPatientModalProps) {
@@ -65,7 +64,7 @@ export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPa
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { // <-- handleSubmit도 async로 변경
     e.preventDefault();
     setError('');
 
@@ -99,7 +98,7 @@ export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPa
       country,
     };
 
-    onAddPatient(newPatient); // 부모 컴포넌트로 데이터 전달 (API 호출)
+    await onAddPatient(newPatient); // <-- await 추가
   };
 
   return (
