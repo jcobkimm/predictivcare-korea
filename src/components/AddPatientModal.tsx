@@ -2,9 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-// DNAStatusKey 타입을 올바른 상대 경로로 임포트하고, 'type' 키워드를 사용하여 타입만 임포트함을 명시
-import type { DNAStatusKey } from '../app/digital-twin/page'; // <-- 경로를 ../../app/digital-twin/page 로 변경
-
+// DNAStatusKey 타입을 임포트합니다.
+import type { DNAStatusKey } from '/Users/jacobkim/Desktop/predictivcare-korea/src/app/digital-twin/page'; // <-- 경로 재확인 (../../app/digital-twin/page)
 
 // 환자 ID 생성을 위한 헬퍼 함수
 const generatePredictivId = (): string => {
@@ -17,16 +16,13 @@ const generatePredictivId = (): string => {
   return result;
 };
 
-// 이 모달에서 사용할 환자 데이터 인터페이스
-// PatientFormData 대신 백엔드와 동일한 Patient 인터페이스를 사용하는 것이 더 명확합니다.
-// 여기서는 일관성을 위해 Patient 인터페이스를 여기서도 정의합니다.
-// 실제 프로젝트에서는 이 인터페이스를 별도의 공유 파일(예: interfaces/Patient.ts)에 정의하고 임포트하여 사용합니다.
+// 이 모달에서 사용할 환자 데이터 인터페이스 (백엔드의 Patient와 동일하게 간소화)
 interface Patient {
   id: string;
-  name: string; // 성 + 이름
+  name: string; // 성 + 이름 (자동 생성)
   firstName: string;
   lastName: string;
-  dnaStatus: DNAStatusKey; // <-- DNAStatusKey 타입으로 변경
+  dnaStatus: DNAStatusKey; // DNAStatusKey 타입 사용
   dnaId: string;
   age?: number;
   height?: string;
@@ -43,15 +39,15 @@ interface Patient {
   state?: string;
   zipcode?: string;
   country?: string;
+  // survey 관련 필드들은 모두 제거합니다.
 }
 
 // 모달 컴포넌트 Props 타입 정의
 interface AddPatientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddPatient: (patientData: Patient) => void; // <-- Patient 타입으로 변경
+  onAddPatient: (patientData: Patient) => void;
 }
-
 
 export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPatientModalProps) {
   const [firstName, setFirstName] = useState('');
@@ -85,12 +81,12 @@ export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPa
       return;
     }
 
-    const newPatient: Patient = { // <-- Patient 타입으로 명시
+    const newPatient: Patient = {
       id: `temp-${Date.now()}`,
       name: `${lastName}${firstName}`, // 성 이름 (붙여쓰기)
       firstName,
       lastName,
-      dnaStatus: 'Awaiting Sample', // <-- DNAStatusKey에 포함된 정확한 문자열 사용
+      dnaStatus: 'Awaiting Sample', // DNAStatusKey에 포함된 정확한 문자열 사용
       dnaId: generatePredictivId(),
       dob,
       biologicalSex,

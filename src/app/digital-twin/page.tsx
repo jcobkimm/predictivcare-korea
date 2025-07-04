@@ -4,10 +4,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AddPatientModal from '../../components/AddPatientModal';
-import DeleteConfirmationModal from '../../components/DeleteConfirmationModal'; // DeleteConfirmationModal 임포트
+import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 
-// DNA 분석 상태 타입 정의 (이전과 동일)
-export type DNAStatusKey =
+// DNA 분석 상태 타입 정의
+export type DNAStatusKey = // <-- 'export' 키워드 확인
   | 'Awaiting Sample'
   | 'Sample Received'
   | 'Sample Extracted'
@@ -33,13 +33,13 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 환자 데이터 인터페이스 (백엔드 및 AddPatientModal과 동일하게 유지)
+// 환자 데이터 인터페이스 간소화 (기본 필드만 유지)
 interface Patient {
   id: string;
   name: string; // 성 + 이름
   firstName: string;
   lastName: string;
-  dnaStatus: DNAStatusKey;
+  dnaStatus: DNAStatusKey; // DNAStatusKey 타입 사용
   dnaId: string;
   age?: number;
   height?: string;
@@ -56,6 +56,7 @@ interface Patient {
   state?: string;
   zipcode?: string;
   country?: string;
+  // survey 관련 필드들은 모두 제거합니다.
 }
 
 
@@ -71,8 +72,8 @@ export default function DigitalTwinDashboard() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
-  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false); // 삭제 확인 모달 상태
-  const [patientToDelete, setPatientToDelete] = useState<{ id: string; name: string } | null>(null); // 삭제할 환자 정보
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<{ id: string; name: string } | null>(null);
 
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function DigitalTwinDashboard() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('http://localhost:3001/patients');
+        const response = await fetch('http://localhost:3001/patients'); // NestJS 백엔드 주소
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -125,27 +126,24 @@ export default function DigitalTwinDashboard() {
     }
   };
 
-  // 환자 삭제 요청 처리 (비밀번호 확인 포함)
   const handleDeletePatient = async (password: string) => {
-    // 실제 계정의 비밀번호와 비교 (여기서는 localStorage의 가상 비밀번호 사용)
     const storedSimulatedPassword = localStorage.getItem('simulated_password') || 'qweasd31d';
     if (password !== storedSimulatedPassword) {
       alert('비밀번호가 일치하지 않습니다. 삭제할 수 없습니다.');
       return;
     }
 
-    if (!patientToDelete) return; // 삭제할 환자 정보 없으면 리턴
+    if (!patientToDelete) return;
 
     try {
       const response = await fetch(`http://localhost:3001/patients/${patientToDelete.id}`, {
         method: 'DELETE',
       });
 
-      if (response.status === 204) { // 204 No Content는 성공적인 삭제를 의미
-        setPatients(prevPatients => prevPatients.filter(p => p.id !== patientToDelete.id)); // 프론트엔드 목록에서 제거
+      if (response.status === 204) {
+        setPatients(prevPatients => prevPatients.filter(p => p.id !== patientToDelete.id));
         alert(`${patientToDelete.name} 환자 정보가 성공적으로 삭제되었습니다.`);
       } else {
-        // NestJS 서비스에서 NotFoundException을 던지면 404 상태 코드를 반환할 수 있음
         const errorData = await response.json();
         throw new Error(`환자 삭제 실패: ${errorData.message || response.status}`);
       }
@@ -153,8 +151,8 @@ export default function DigitalTwinDashboard() {
       alert(`환자 삭제 중 오류 발생: ${e.message}`);
       console.error("Failed to delete patient:", e);
     } finally {
-      setIsDeleteConfirmModalOpen(false); // 모달 닫기
-      setPatientToDelete(null); // 삭제할 환자 정보 초기화
+      setIsDeleteConfirmModalOpen(false);
+      setPatientToDelete(null);
     }
   };
 
@@ -241,17 +239,6 @@ export default function DigitalTwinDashboard() {
         </div>
       </div>
 
-      {/* ADD NEW PATIENT 버튼 */}
-      <div className="flex justify-center mb-6">
-        <button
-          className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 flex items-center text-lg font-semibold"
-          onClick={() => setIsAddPatientModalOpen(true)}
-        >
-          <PlusIcon className="w-6 h-6 mr-2" />
-          새 환자 추가
-        </button>
-      </div>
-
       {/* 환자 목록 */}
       {loading ? (
         <div className="text-center py-10 text-gray-600">환자 데이터를 불러오는 중입니다...</div>
@@ -282,8 +269,8 @@ export default function DigitalTwinDashboard() {
                 </Link>
               </div>
               <div
-                className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer p-2 relative group" // relative group 추가
-                onClick={(e) => { e.stopPropagation(); setPatientToDelete({ id: patient.id, name: patient.lastName + patient.firstName }); setIsDeleteConfirmModalOpen(true); }} // 클릭 이벤트 추가
+                className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer p-2 relative group"
+                onClick={(e) => { e.stopPropagation(); setPatientToDelete({ id: patient.id, name: patient.lastName + patient.firstName }); setIsDeleteConfirmModalOpen(true); }}
               >
                 &#8226;&#8226;&#8226;
                 <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
@@ -300,6 +287,22 @@ export default function DigitalTwinDashboard() {
           해당 조건에 맞는 환자가 없습니다.
         </p>
       )}
+
+      {/* ADD NEW PATIENT 버튼 - 환자 목록 아래로 이동 및 디자인 변경 */}
+      <div className="flex justify-center mt-6">
+        <button
+          className="flex items-center text-green-600 border border-green-600 px-6 py-3 rounded-full hover:bg-green-50 transition-colors duration-200 text-lg font-semibold"
+          onClick={() => setIsAddPatientModalOpen(true)}
+        >
+          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white mr-3">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+          </span>
+          새 환자 추가
+        </button>
+      </div>
+
 
       {/* Disclaimer 텍스트 및 팝업 트리거 */}
       <div className="fixed bottom-4 left-4 text-gray-600 text-sm cursor-pointer hover:underline z-40"
@@ -347,9 +350,9 @@ export default function DigitalTwinDashboard() {
   );
 }
 
-// PlusIcon (ADD NEW PATIENT 버튼용)
-const PlusIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-  </svg>
-);
+// PlusIcon (ADD NEW PATIENT 버튼용) - 더 이상 독립적으로 사용되지 않으므로 제거 또는 주석 처리 가능
+// const PlusIcon = ({ className }: { className?: string }) => (
+//   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+//     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+//   </svg>
+// );

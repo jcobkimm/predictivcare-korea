@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// DNA 분석 상태 타입 정의: 가능한 모든 상태 문자열 리터럴을 정확히 나열
+// DNA 분석 상태 타입 정의 (이전과 동일)
 type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
@@ -18,7 +18,7 @@ type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// DNA 분석 상태 매핑: Record 유틸리티 타입을 사용하여 DNAStatusKey와 string 매핑을 명시
+// DNA 분석 상태 매핑 (이전과 동일)
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -32,13 +32,13 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 환자 데이터 인터페이스 (백엔드 및 AddPatientModal과 동일하게 유지)
+// 환자 데이터 인터페이스 (기본 필드만 유지)
 interface Patient {
   id: string;
   name: string; // 성 + 이름
-  firstName: string; // <-- 추가
-  lastName: string;  // <-- 추가
-  dnaStatus: DNAStatusKey; // DNAStatusKey 타입 사용
+  firstName: string;
+  lastName: string;
+  dnaStatus: DNAStatusKey;
   dnaId: string;
   age?: number;
   height?: string;
@@ -55,6 +55,7 @@ interface Patient {
   state?: string;
   zipcode?: string;
   country?: string;
+  // survey 관련 필드들은 모두 제거합니다.
 }
 
 const DUMMY_PATIENTS: Patient[] = [
@@ -66,14 +67,17 @@ const DUMMY_PATIENTS: Patient[] = [
 ];
 
 
-export default function DigitalTwinDetail({ params }: { params: { id: string } }) {
+export default async function DigitalTwinDetail({ params }: { params: { id: string } }) { // <-- async 키워드 추가
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [patient, setPatient] = useState<Patient | null>(null);
 
+  // useEffect는 클라이언트 컴포넌트에서만 사용 가능하므로, 그대로 유지됩니다.
+  // 이 경고는 서버 컴포넌트에서 params에 접근할 때 주로 나타나지만,
+  // 클라이언트 컴포넌트의 async 함수로도 해결될 수 있습니다.
   useEffect(() => {
-    const foundPatient = DUMMY_PATIENTS.find(p => p.id === id);
-    setPatient(foundPatient || null);
+    const foundPatientFromDummy = DUMMY_PATIENTS.find(p => p.id === id);
+    setPatient(foundPatientFromDummy || null);
   }, [id]);
 
   if (!patient) {
@@ -84,7 +88,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
     );
   }
 
-  // 용어 한국화
+  // 용어 한국화 (이전과 동일)
   const koreanTerms = {
     actionable: '의학적 조치 필요',
     significant: '주요 변이',
@@ -92,6 +96,12 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
     exploratory: '탐색성 변이',
     informative: '정보성 변이',
     wellness: '건강 관리',
+  };
+
+  // 펜 아이콘 클릭 시 임시 핸들러 (아직 구현되지 않았음을 알림)
+  const handleEditClick = (sectionName: string) => {
+    alert(`${sectionName} 수정 기능은 아직 구현되지 않았습니다.`);
+    console.log(`${sectionName} edit clicked for patient: ${patient.id}`);
   };
 
 
@@ -102,7 +112,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         <div className="flex items-center mb-4 sm:mb-0">
           <Image src="/predictiv_logo_small.png" alt="Predictiv Logo" width={30} height={30} className="mr-3"/>
           <h1 className="text-xl font-bold text-gray-800">
-            안녕하세요, {patient.lastName}{patient.firstName}님! {/* 성 이름 (붙여쓰기) */}
+            안녕하세요, {patient.lastName}{patient.firstName}님!
             <p className="text-sm font-normal text-gray-500">
               디지털 트윈 상세 정보. 현재 상태: <span className="text-blue-600">{DNA_STATUS_MAP[patient.dnaStatus]}</span>
             </p>
@@ -134,7 +144,10 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 기본 정보 */}
           <section className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
-              기본 정보 <CheckIcon />
+              기본 정보
+              <span onClick={() => handleEditClick('기본 정보')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                <EditIcon />
+              </span>
             </h2>
             <div className="text-gray-700 space-y-2 text-sm">
               <p><strong>나이:</strong> {patient.age || 'N/A'}</p>
@@ -148,7 +161,10 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 생활 습관 */}
           <section className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
-              생활 습관 <CheckIcon />
+              생활 습관
+              <span onClick={() => handleEditClick('생활 습관')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                <EditIcon />
+              </span>
             </h2>
             <div className="text-gray-700 space-y-2 text-sm">
               <p><strong>운동:</strong> N/A</p>
@@ -164,16 +180,28 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
             <h2 className="text-xl font-semibold text-gray-800 mb-4">건강 이력</h2>
             <div className="text-gray-700 space-y-4">
               <div className="flex justify-between items-center">
-                <p className="font-medium">의료 기록</p> <span className="text-gray-500">N/A</span> <CheckIcon />
+                <p className="font-medium">의료 기록</p> <span className="text-gray-500">N/A</span>
+                <span onClick={() => handleEditClick('의료 기록')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                  <EditIcon />
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">알레르기</p> <span className="text-gray-500">없음</span> <CheckIcon />
+                <p className="font-medium">알레르기</p> <span className="text-gray-500">없음</span>
+                <span onClick={() => handleEditClick('알레르기')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                  <EditIcon />
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">가족력</p> <span className="text-gray-500">N/A</span> <CheckIcon />
+                <p className="font-medium">가족력</p> <span className="text-gray-500">N/A</span>
+                <span onClick={() => handleEditClick('가족력')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                  <EditIcon />
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <p className="font-medium">복용 약물</p> <span className="text-gray-500">N/A</span> <CheckIcon />
+                <p className="font-medium">복용 약물</p> <span className="text-gray-500">N/A</span>
+                <span onClick={() => handleEditClick('복용 약물')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
+                  <EditIcon />
+                </span>
               </div>
             </div>
           </section>
@@ -323,9 +351,10 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
 }
 
 // === 아이콘 컴포넌트들 (SVG) ===
-const CheckIcon = () => (
-  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+// EditIcon 추가 및 기존 아이콘들 유지
+const EditIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
   </svg>
 );
 
