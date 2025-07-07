@@ -2,12 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-// import Link from 'next/link'; // 'Link'가 사용되지 않으므로 임포트 제거
 import Image from 'next/image';
 import AboutTestModal from '../../../components/AboutTestModal';
-import RareDisorderInfoModal from '../../../components/RareDisorderInfoModal'; // RareDisorderInfoModal 임포트
+import RareDisorderInfoModal from '../../../components/RareDisorderInfoModal';
 
-// DNA 분석 상태 타입 정의 (이전과 동일)
+// DNA 분석 상태 타입 정의
 export type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
@@ -20,7 +19,7 @@ export type DNAStatusKey =
   | 'Completed'
   | 'Analyzing';
 
-// DNA 분석 상태 매핑 (이전과 동일)
+// DNA 분석 상태 매핑
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -34,10 +33,10 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 환자 데이터 인터페이스 (백엔드와 동일하게 유지 - survey 필드 없음)
+// 환자 데이터 인터페이스
 interface Patient {
   id: string;
-  name: string; // 성 + 이름
+  name: string;
   firstName: string;
   lastName: string;
   dnaStatus: DNAStatusKey;
@@ -59,11 +58,20 @@ interface Patient {
   country?: string;
 }
 
-export default function DigitalTwinDetail({ params }: { params: { id: string } }) {
+// --- 여기를 수정합니다 ---
+// Next.js 페이지 컴포넌트의 props 타입을 정의합니다.
+interface DigitalTwinDetailProps {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function DigitalTwinDetail({ params, searchParams }: DigitalTwinDetailProps) {
+// -----------------------
+
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showAboutTestModal, setShowAboutTestModal] = useState(false);
-  const [showRareDisorderInfoModal, setShowRareDisorderInfoModal] = useState(false); // RareDisorderInfoModal 상태 추가
+  const [showRareDisorderInfoModal, setShowRareDisorderInfoModal] = useState(false);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +87,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         }
         const data: Patient = await response.json();
         setPatient(data);
-      } catch (e: unknown) { // any를 unknown으로 변경
+      } catch (e: unknown) {
         setError(`환자 정보를 불러오는 중 오류 발생: ${(e as Error).message}`);
         console.error("Failed to fetch patient detail:", e);
         setPatient(null);
@@ -113,7 +121,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
     );
   }
 
-  // 용어 한국화 (이전과 동일)
   const koreanTerms = {
     actionable: '의학적 조치 필요',
     significant: '주요 변이',
@@ -123,17 +130,13 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
     wellness: '건강 관리',
   };
 
-  // 펜 아이콘 클릭 시 임시 핸들러 (아직 구현되지 않았음을 알림)
   const handleEditClick = (sectionName: string) => {
     alert(`${sectionName} 수정 기능은 아직 구현되지 않았습니다.`);
     console.log(`${sectionName} edit clicked for patient: ${patient.id}`);
   };
 
-  // 정보가 없을 때 표시할 워딩
   const missingInfoText = "정보 없음";
   const dataPendingText = "DNA 샘플 대기 중";
-
-  // 새로운 환자 (dnaStatus가 'Awaiting Sample'인 경우)를 위한 상태 체크
   const isNewPatientWithPendingDNA = patient.dnaStatus === 'Awaiting Sample';
 
   return (
