@@ -1,7 +1,7 @@
 // components/AboutTestModal.tsx
 'use client';
 
-import { useState } from 'react';
+//import { useState } from 'react';
 
 interface AboutTestModalProps {
   isOpen: boolean;
@@ -36,7 +36,7 @@ export default function AboutTestModal({ isOpen, onClose }: AboutTestModalProps)
             MedSeq Project, Genomics England PanelApp과 같은 전문가 큐레이션 목록을 활용하여 라벨링됩니다.
             Predictiv는 또한 보인자 빈도가 200명 중 1명 이상인 질환에 대해 ACMG 권장 Tier-3 보인자 스크리닝(Tier-1 및 Tier-2 포함)을 제공합니다.
             ACMG Tier-3 스크리닝 패널은 97개의 상염색체 열성 유전자와 16개의 X-연관 유전자를 포함합니다.
-            이 113개 유전자에서 병원성 또는 병원성 가능성 변이가 발견되면 '보인자 상태'로 플래그가 지정됩니다.
+            이 113개 유전자에서 병원성 또는 병원성 가능성 변이가 발견되면 &apos;보인자 상태&apos;로 플래그가 지정됩니다.
           </p>
         </section>
 
