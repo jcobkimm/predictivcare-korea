@@ -58,14 +58,15 @@ interface Patient {
   country?: string;
 }
 
-// ✅ 타입 문제와 Unused-vars 문제를 한번에 해결하는 부분
+// 페이지 props 타입 정의
 interface DigitalTwinDetailProps {
   params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-// ✅ 컴포넌트 시그니처를 아래와 같이 수정합니다.
-export default function DigitalTwinDetail({ params }: DigitalTwinDetailProps) {
+// ⛔️ 여기를 최종적으로 수정합니다.
+// searchParams를 받되, 사용하지 않으므로 변수명 앞에 '_'를 붙입니다.
+export default function DigitalTwinDetail({ params, searchParams: _searchParams }: DigitalTwinDetailProps) {
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showAboutTestModal, setShowAboutTestModal] = useState(false);
