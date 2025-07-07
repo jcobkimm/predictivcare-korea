@@ -2,7 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import type { DNAStatusKey } from '/Users/jacobkim/Desktop/predictivcare-korea/src/app/digital-twin/page'; // DNAStatusKey 임포트 경로 확인
+// ⛔️ 절대 경로를 수정합니다.
+import type { DNAStatusKey } from '@/app/digital-twin/page';
 
 // 환자 ID 생성을 위한 헬퍼 함수
 const generatePredictivId = (): string => {
@@ -38,14 +39,13 @@ interface Patient {
   state?: string;
   zipcode?: string;
   country?: string;
-  // survey 관련 필드들은 모두 제거합니다.
 }
 
 // 모달 컴포넌트 Props 타입 정의
 interface AddPatientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddPatient: (patientData: Patient) => Promise<void>; // <-- 반환 타입을 Promise<void>로 정확히 명시
+  onAddPatient: (patientData: Patient) => Promise<void>;
 }
 
 export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPatientModalProps) {
@@ -64,7 +64,7 @@ export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPa
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => { // <-- handleSubmit도 async로 변경
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -73,7 +73,6 @@ export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPa
       return;
     }
 
-    // 생년월일 형식 MM/DD/YYYY 확인
     const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/(19|20)\d{2}$/;
     if (!dobRegex.test(dob)) {
       setError('생년월일 형식이 올바르지 않습니다 (MM/DD/YYYY).');
@@ -82,10 +81,10 @@ export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPa
 
     const newPatient: Patient = {
       id: `temp-${Date.now()}`,
-      name: `${lastName}${firstName}`, // 성 이름 (붙여쓰기)
+      name: `${lastName}${firstName}`,
       firstName,
       lastName,
-      dnaStatus: 'Awaiting Sample', // DNAStatusKey에 포함된 정확한 문자열 사용
+      dnaStatus: 'Awaiting Sample',
       dnaId: generatePredictivId(),
       dob,
       biologicalSex,
@@ -98,7 +97,7 @@ export default function AddPatientModal({ isOpen, onClose, onAddPatient }: AddPa
       country,
     };
 
-    await onAddPatient(newPatient); // <-- await 추가
+    await onAddPatient(newPatient);
   };
 
   return (

@@ -58,16 +58,14 @@ interface Patient {
   country?: string;
 }
 
-// --- 여기를 수정합니다 ---
-// Next.js 페이지 컴포넌트의 props 타입을 정의합니다.
+// ✅ 타입 문제와 Unused-vars 문제를 한번에 해결하는 부분
 interface DigitalTwinDetailProps {
   params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
+// ✅ 컴포넌트 시그니처를 아래와 같이 수정합니다.
 export default function DigitalTwinDetail({ params }: DigitalTwinDetailProps) {
-// -----------------------
-
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showAboutTestModal, setShowAboutTestModal] = useState(false);
@@ -301,7 +299,7 @@ export default function DigitalTwinDetail({ params }: DigitalTwinDetailProps) {
             {/* 느낌표(정보) 아이콘 추가 */}
             <button onClick={() => setShowRareDisorderInfoModal(true)} className="p-2 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0">
                 <Image
-                    src="/info_circle_icon.png" // <-- 정보 아이콘 이미지 경로 (public 폴더에 넣어주세요)
+                    src="/info_circle_icon.png"
                     alt="Info"
                     width={24}
                     height={24}

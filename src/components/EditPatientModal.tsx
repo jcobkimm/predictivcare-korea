@@ -2,7 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { DNAStatusKey } from '/Users/jacobkim/Desktop/predictivcare-korea/src/app/digital-twin/page'; // DNAStatusKey 임포트
+// ⛔️ 절대 경로를 수정합니다.
+import type { DNAStatusKey } from '@/app/digital-twin/page';
 
 // Patient 인터페이스는 백엔드와 동일하게 유지
 interface Patient {
@@ -27,19 +28,16 @@ interface Patient {
   state?: string;
   zipcode?: string;
   country?: string;
-  // survey 관련 필드들은 모두 제거합니다.
 }
 
 interface EditPatientModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdatePatient: (patientData: Patient) => Promise<void>;
-  patient: Patient; // 수정할 환자 객체
+  patient: Patient;
 }
 
-// export default function으로 컴포넌트를 내보냄
 export default function EditPatientModal({ isOpen, onClose, onUpdatePatient, patient }: EditPatientModalProps) {
-  // 초기값을 patient prop에서 가져오도록 설정
   const [firstName, setFirstName] = useState(patient.firstName || '');
   const [lastName, setLastName] = useState(patient.lastName || '');
   const [biologicalSex, setBiologicalSex] = useState(patient.biologicalSex || '');
@@ -53,7 +51,6 @@ export default function EditPatientModal({ isOpen, onClose, onUpdatePatient, pat
   const [country, setCountry] = useState(patient.country || '');
   const [error, setError] = useState('');
 
-  // patient prop이 변경될 때마다 폼 필드를 업데이트 (선택된 환자가 바뀔 경우)
   useEffect(() => {
     setFirstName(patient.firstName || '');
     setLastName(patient.lastName || '');
@@ -66,7 +63,7 @@ export default function EditPatientModal({ isOpen, onClose, onUpdatePatient, pat
     setState(patient.state || '');
     setZipcode(patient.zipcode || '');
     setCountry(patient.country || '');
-    setError(''); // 오류 메시지 초기화
+    setError('');
   }, [patient]);
 
 
@@ -75,30 +72,24 @@ export default function EditPatientModal({ isOpen, onClose, onUpdatePatient, pat
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    // 수정 불가능 필드는 유효성 검사에서 제외하거나 기존 값을 사용
-    // 전화번호, 주소, 도시, 주/도, 우편번호, 국가는 여전히 필수
+    
     if (!phoneNumber || !address || !city || !state || !zipcode || !country) {
       setError('모든 필수 정보를 입력해주세요.');
       return;
     }
 
-    // 생년월일 형식 MM/DD/YYYY 확인 (수정 불가능하더라도 기존 값의 유효성 확인은 중요)
     const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/(19|20)\d{2}$/;
-    if (patient.dob && !dobRegex.test(patient.dob)) { // patient.dob을 직접 검사
+    if (patient.dob && !dobRegex.test(patient.dob)) {
       setError('환자의 생년월일 형식이 올바르지 않습니다 (MM/DD/YYYY).');
       return;
     }
 
     const updatedPatient: Patient = {
-      ...patient, // 기존 환자 정보 유지 (ID 등)
-      // readOnly 필드는 patient의 원본 값을 사용하도록 명시적으로 할당
+      ...patient,
       firstName: patient.firstName,
       lastName: patient.lastName,
       dob: patient.dob,
       biologicalSex: patient.biologicalSex,
-
-      // 수정 가능한 필드는 현재 상태 값을 사용
       phoneNumber,
       address,
       address2,
@@ -106,7 +97,6 @@ export default function EditPatientModal({ isOpen, onClose, onUpdatePatient, pat
       state,
       zipcode,
       country,
-      // 이름은 성+이름으로 다시 구성
       name: `${patient.lastName}${patient.firstName}`,
     };
 
@@ -123,23 +113,23 @@ export default function EditPatientModal({ isOpen, onClose, onUpdatePatient, pat
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">이름</label>
-            <input type="text" value={firstName} readOnly // <-- readOnly
+            <input type="text" value={firstName} readOnly
                    className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 cursor-not-allowed" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">성</label>
-            <input type="text" value={lastName} readOnly // <-- readOnly
+            <input type="text" value={lastName} readOnly
                    className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 cursor-not-allowed" />
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700">생년월일 (MM/DD/YYYY)</label>
-            <input type="text" value={dob} readOnly // <-- readOnly
+            <input type="text" value={dob} readOnly
                    className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 cursor-not-allowed" placeholder="MM/DD/YYYY" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">성별</label>
-            <select value={biologicalSex} disabled // <-- disabled로 변경
+            <select value={biologicalSex} disabled
                     className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm p-2 text-gray-700 cursor-not-allowed" >
               <option value="">선택하세요</option>
               <option value="Male">남성</option>
@@ -188,7 +178,6 @@ export default function EditPatientModal({ isOpen, onClose, onUpdatePatient, pat
               <option value="South Korea">대한민국</option>
               <option value="USA">미국</option>
               <option value="Canada">캐나다</option>
-              {/* 필요한 다른 국가 추가 */}
             </select>
           </div>
 
