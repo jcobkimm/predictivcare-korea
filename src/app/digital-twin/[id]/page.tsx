@@ -65,7 +65,7 @@ interface DigitalTwinDetailProps {
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export default function DigitalTwinDetail({ params, searchParams }: DigitalTwinDetailProps) {
+export default function DigitalTwinDetail({ params }: DigitalTwinDetailProps) {
 // -----------------------
 
   const { id } = params;
