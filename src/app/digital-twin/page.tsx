@@ -1,13 +1,14 @@
 // app/digital-twin/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import AddPatientModal from '../../components/AddPatientModal';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
+import EditPatientModal from '../../components/EditPatientModal'; // EditPatientModal 임포트 확인
 
 // DNA 분석 상태 타입 정의 (이전과 동일)
-export type DNAStatusKey = // <-- 'export' 키워드 확인
+export type DNAStatusKey =
   | 'Awaiting Sample'
   | 'Sample Received'
   | 'Sample Extracted'
@@ -33,13 +34,13 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 환자 데이터 인터페이스 간소화 (백엔드와 동일하게 유지)
+// 환자 데이터 인터페이스 (백엔드 및 AddPatientModal과 동일하게 유지)
 interface Patient {
   id: string;
   name: string; // 성 + 이름
   firstName: string;
   lastName: string;
-  dnaStatus: DNAStatusKey; // DNAStatusKey 타입 사용
+  dnaStatus: DNAStatusKey;
   dnaId: string;
   age?: number;
   height?: string;
@@ -75,13 +76,32 @@ export default function DigitalTwinDashboard() {
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<{ id: string; name: string } | null>(null);
 
+  // Edit 기능 관련 상태
+  const [isEditPatientModalOpen, setIsEditPatientModalOpen] = useState(false); // 수정 모달 상태
+  const [patientToEdit, setPatientToEdit] = useState<Patient | null>(null); // 수정할 환자 정보
+  const [showContextMenuId, setShowContextMenuId] = useState<string | null>(null); // 컨텍스트 메뉴 표시 상태
+  const contextMenuRef = useRef<HTMLDivElement>(null); // 컨텍스트 메뉴 Ref
+
+  // 외부 클릭 감지하여 컨텍스트 메뉴 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+        setShowContextMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('http://localhost:3001/patients'); // NestJS 백엔드 주소
+        const response = await fetch('http://localhost:3001/patients');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -153,6 +173,34 @@ export default function DigitalTwinDashboard() {
     } finally {
       setIsDeleteConfirmModalOpen(false);
       setPatientToDelete(null);
+    }
+  };
+
+  // 환자 정보 업데이트 함수 (EditPatientModal에서 호출)
+  const handleUpdatePatient = async (updatedPatientData: Patient) => {
+    try {
+      const response = await fetch(`http://localhost:3001/patients/${updatedPatientData.id}`, {
+        method: 'PATCH', // 또는 'PUT' (부분 업데이트이므로 PATCH가 더 적합)
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedPatientData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`환자 정보 업데이트 실패: ${response.status}`);
+      }
+
+      const returnedPatient: Patient = await response.json();
+      setPatients(prevPatients => prevPatients.map(p => 
+        p.id === returnedPatient.id ? returnedPatient : p
+      )); // 프론트엔드 목록 업데이트
+      setIsEditPatientModalOpen(false); // 모달 닫기
+      alert(`${returnedPatient.name} 환자 정보가 성공적으로 업데이트되었습니다.`);
+    }
+    catch (e: any) {
+      alert(`환자 정보 업데이트 중 오류 발생: ${e.message}`);
+      console.error("Failed to update patient:", e);
     }
   };
 
@@ -268,16 +316,41 @@ export default function DigitalTwinDashboard() {
                   )}
                 </Link>
               </div>
-              <div
-                className="ml-auto text-gray-500 hover:text-gray-700 cursor-pointer p-2 relative group"
-                onClick={(e) => { e.stopPropagation(); setPatientToDelete({ id: patient.id, name: patient.lastName + patient.firstName }); setIsDeleteConfirmModalOpen(true); }}
-              >
-                &#8226;&#8226;&#8226;
-                <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
-                  <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    삭제
-                  </button>
-                </div>
+              {/* 세 점 아이콘 클릭 시 메뉴 토글 */}
+              <div className="ml-auto relative" ref={contextMenuRef}>
+                <button
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowContextMenuId(showContextMenuId === patient.id ? null : patient.id);
+                  }}
+                >
+                  &#8226;&#8226;&#8226;
+                </button>
+                {showContextMenuId === patient.id && (
+                  <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-10">
+                    <button
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => {
+                        setPatientToEdit(patient);
+                        setIsEditPatientModalOpen(true);
+                        setShowContextMenuId(null);
+                      }}
+                    >
+                      수정
+                    </button>
+                    <button
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => {
+                        setPatientToDelete({ id: patient.id, name: patient.lastName + patient.firstName });
+                        setIsDeleteConfirmModalOpen(true);
+                        setShowContextMenuId(null);
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -344,6 +417,16 @@ export default function DigitalTwinDashboard() {
           onClose={() => setIsDeleteConfirmModalOpen(false)}
           onConfirmDelete={handleDeletePatient}
           patientName={patientToDelete.name}
+        />
+      )}
+
+      {/* 환자 수정 모달 */}
+      {isEditPatientModalOpen && patientToEdit && (
+        <EditPatientModal
+          isOpen={isEditPatientModalOpen}
+          onClose={() => setIsEditPatientModalOpen(false)}
+          onUpdatePatient={handleUpdatePatient}
+          patient={patientToEdit}
         />
       )}
     </div>

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import AboutTestModal from '../../../components/AboutTestModal'; // <-- AboutTestModal 임포트 경로 확인!
+import RareDisorderInfoModal from '../../../components/RareDisorderInfoModal';
 
 // DNA 분석 상태 타입 정의 (이전과 동일)
 export type DNAStatusKey =
@@ -62,9 +63,11 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showAboutTestModal, setShowAboutTestModal] = useState(false);
+  const [showRareDisorderInfoModal, setShowRareDisorderInfoModal] = useState(false); // <-- 새로운 상태 추가
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     // API로부터 환자 상세 정보를 가져오는 함수
@@ -145,8 +148,8 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
             <Image
               src="/question_mark_icon.png" // <-- 물음표 아이콘 이미지 경로 (public 폴더에 넣어주세요)
               alt="About this test"
-              width={24} // 적절한 크기로 조정
-              height={24} // 적절한 크기로 조정
+              width={30} // 적절한 크기로 조정
+              height={30} // 적절한 크기로 조정
             />
           </button>
           <Image src="/predictiv_logo_small.png" alt="Predictiv Logo" width={30} height={30} className="mr-3"/>
@@ -201,7 +204,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 생활 습관 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
-              <Image src="/lifestyle_ico.png" alt="Lifestyle" width={30} height={30} className="mr-2" />
+              <Image src="/lifestyle_icon.png" alt="Lifestyle" width={30} height={30} className="mr-2" />
               생활 습관
               <span onClick={() => handleEditClick('생활 습관')} className="text-gray-400 hover:text-blue-600 cursor-pointer">
                 <EditIcon />
@@ -267,27 +270,27 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         {/* 오른쪽 열: 희귀 유전 질환, 약물 반응, 건강 관리, 유전자 상담, 내 보고서 */}
         <div className="space-y-6">
           {/* 희귀 유전 질환 */}
-          <section className="bg-white p-6 rounded-lg shadow-lg">
+          <section className="bg-white p-6 rounded-lg shadow-lg flex items-start justify-between"> {/* flex items-start 추가 */}
             <div className="flex items-center space-x-4">
               <Image src="/dna_helix_icon.png" alt="DNA Helix" width={60} height={60} />
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-1">희귀 유전 질환</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-1">희귀 유전 질환</h2>
                 {isNewPatientWithPendingDNA ? (
                   <p className="text-blue-600 text-sm">{dataPendingText}</p>
                 ) : (
                   <>
-                    <p className="text-gray-600 text-sm">1666가지 변이 감지됨</p>
-                    <div className="flex items-center text-xs mt-2 flex-wrap gap-2">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800">
+                    <p className="text-gray-600 text-sm">1666가지 변이 감지됨</p> {/* "1666 VARIANTS DETECTED" */}
+                    <div className="flex flex-col items-end text-right text-xs mt-2 space-y-1"> {/* 스크린샷처럼 오른쪽 정렬 및 세로 스택 */}
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800 w-full justify-between">
                         <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span> {koreanTerms.actionable}: 0
                       </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 w-full justify-between">
                         <span className="w-2 h-2 bg-orange-500 rounded-full mr-1"></span> {koreanTerms.significant}: 0
                       </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 w-full justify-between">
                         <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span> {koreanTerms.notable}: 0
                       </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 w-full justify-between">
                         <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span> {koreanTerms.exploratory}: 1666
                       </span>
                     </div>
@@ -295,6 +298,15 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 )}
               </div>
             </div>
+            {/* 느낌표(정보) 아이콘 추가 */}
+            <button onClick={() => setShowRareDisorderInfoModal(true)} className="p-2 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0">
+                <Image
+                    src="/info_circle_icon.png" // <-- 정보 아이콘 이미지 경로 (public 폴더에 넣어주세요)
+                    alt="Info"
+                    width={24} // 적절한 크기로 조정
+                    height={24} // 적절한 크기로 조정
+                />
+            </button>
           </section>
 
           {/* 약물 반응 */}
@@ -430,6 +442,14 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           onClose={() => setShowAboutTestModal(false)}
         />
       )}
+
+      {/* RareDisorderInfoModal 렌더링 추가 */}
+      {showRareDisorderInfoModal && (
+        <RareDisorderInfoModal
+          isOpen={showRareDisorderInfoModal}
+          onClose={() => setShowRareDisorderInfoModal(false)}
+        />
+      )}
     </div>
   );
 }
@@ -438,13 +458,6 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
 const EditIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-  </svg>
-);
-
-// QuestionMarkIcon 정의 (이전에 누락되었던 부분)
-const QuestionMarkIcon = () => (
-  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-1 1v2a1 1 0 102 0V8a1 1 0 00-1-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
   </svg>
 );
 
