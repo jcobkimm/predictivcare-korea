@@ -8,7 +8,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [firstName, setFirstName] = useState('demo');
   const [lastName, setLastName] = useState('user');
-  const [email, setEmail] = useState('demo@predictivcare.com'); // 이메일은 변경 불가
+  const [email] = useState('demo@predictivcare.com'); // 이메일은 변경 불가
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');

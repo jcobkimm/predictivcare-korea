@@ -1,7 +1,7 @@
 // components/RareDisorderInfoModal.tsx
 'use client';
 
-import { useState } from 'react';
+//import { useState } from 'react';
 
 interface RareDisorderInfoModalProps {
   isOpen: boolean;
@@ -32,14 +32,14 @@ export default function RareDisorderInfoModal({ isOpen, onClose }: RareDisorderI
           <h3 className="text-xl font-semibold text-blue-700 mb-3">보인자 스크리닝 (CARRIER SCREENING)</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             이 섹션의 일부 유전 질환은 열성 질환과 관련이 있으며, 개인이 질병에 영향을 받으려면 유전된 유전자의 두 복사본에 변이가 필요합니다.
-            개인이 한 유전자에만 질환 유전자를 가지고 있는 경우 '보인자'라고 합니다.
+            개인이 한 유전자에만 질환 유전자를 가지고 있는 경우 &apos;보인자&apos;라고 합니다.
             보인자는 종종 질환 유전자를 가지고 있다는 사실을 인지하지 못하며 일반적으로 증상이 없거나 경미한 증상만 나타납니다.
           </p>
           <div className="space-y-4 mt-6">
             <div className="p-3 bg-gray-100 rounded-md border border-gray-200">
               <strong className="block text-gray-800 mb-1">ACTIONABLE</strong>
               <p className="text-gray-700 text-sm">
-                ACMG(미국 의학 유전학 및 유전체학회)에 따르면, '액션 가능한 질병'은 유전 검사 결과에 기반하여
+                ACMG(미국 의학 유전학 및 유전체학회)에 따르면, &apos;액션 가능한 질병&apos;은 유전 검사 결과에 기반하여
                 의학적 개입, 치료 또는 예방 조치가 가능한 유전 질환입니다.
                 이들은 유전자-질병 연관성이 매우 강한 질환이며, 병원성 또는 병원성 가능성 변이가 식별될 경우
                 심각한, 의학적으로 조치 가능한 상태를 유발할 가능성이 높은 ACMG가 식별한 73개 유전자를 포함합니다.

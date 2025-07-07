@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import AboutTestModal from '../../../components/AboutTestModal'; // <-- AboutTestModal 임포트 경로 확인!
 import RareDisorderInfoModal from '../../../components/RareDisorderInfoModal';
@@ -81,8 +80,8 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         }
         const data: Patient = await response.json();
         setPatient(data);
-      } catch (e: any) {
-        setError(`환자 정보를 불러오는 중 오류 발생: ${e.message}`);
+      } catch (e: unknown) { // <-- any를 unknown으로 변경
+        setError(`환자 정보를 불러오는 중 오류 발생: ${(e as Error).message}`); // <-- (e as Error)로 타입 단언
         console.error("Failed to fetch patient detail:", e);
         setPatient(null);
       } finally {

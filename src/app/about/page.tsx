@@ -1,8 +1,6 @@
 // src/app/about/page.tsx
 'use client';
 
-import Image from 'next/image';
-
 export default function AboutPage() {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -32,9 +30,9 @@ export default function AboutPage() {
 
       <section className="bg-white p-8 rounded-lg shadow-md mb-8">
         <h2 className="text-2xl font-semibold text-blue-700 mb-4">기술과 혁신</h2>
-        <p className="text-gray-700 leading-relaxed mb-4">
+        <p className="text-gray-700 leading-relaxed">
           최첨단 유전체 분석 기술과 인공지능(AI), 머신러닝을 결합하여 정밀하고 개인화된 건강 관리 솔루션을 개발합니다.
-          이 기술은 '5P Medicine'(개인화, 예측, 예방, 참여, 정밀) 철학을 바탕으로, 의사와 환자 모두에게 최적의 건강 관리 경험을 제공합니다.
+          이 기술은 &apos;5P Medicine&apos;(개인화, 예측, 예방, 참여, 정밀) 철학을 바탕으로, 의사와 환자 모두에게 최적의 건강 관리 경험을 제공합니다.
         </p>
       </section>
       
