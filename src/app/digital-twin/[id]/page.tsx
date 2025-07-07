@@ -1,10 +1,11 @@
-// app/digital-twin/[id]/page.tsx
+// src/app/digital-twin/[id]/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
+// import Link from 'next/link'; // 'Link'가 사용되지 않으므로 임포트 제거
 import Image from 'next/image';
-import AboutTestModal from '../../../components/AboutTestModal'; // <-- AboutTestModal 임포트 경로 확인!
-import RareDisorderInfoModal from '../../../components/RareDisorderInfoModal';
+import AboutTestModal from '../../../components/AboutTestModal';
+import RareDisorderInfoModal from '../../../components/RareDisorderInfoModal'; // RareDisorderInfoModal 임포트
 
 // DNA 분석 상태 타입 정의 (이전과 동일)
 export type DNAStatusKey =
@@ -62,26 +63,24 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showAboutTestModal, setShowAboutTestModal] = useState(false);
-  const [showRareDisorderInfoModal, setShowRareDisorderInfoModal] = useState(false); // <-- 새로운 상태 추가
+  const [showRareDisorderInfoModal, setShowRareDisorderInfoModal] = useState(false); // RareDisorderInfoModal 상태 추가
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
   useEffect(() => {
-    // API로부터 환자 상세 정보를 가져오는 함수
     const fetchPatientDetail = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:3001/patients/${id}`); // NestJS 백엔드 상세 API 호출
+        const response = await fetch(`http://localhost:3001/patients/${id}`);
         if (!response.ok) {
           throw new Error(`환자 상세 정보를 불러오는 데 실패했습니다: ${response.status}`);
         }
         const data: Patient = await response.json();
         setPatient(data);
-      } catch (e: unknown) { // <-- any를 unknown으로 변경
-        setError(`환자 정보를 불러오는 중 오류 발생: ${(e as Error).message}`); // <-- (e as Error)로 타입 단언
+      } catch (e: unknown) { // any를 unknown으로 변경
+        setError(`환자 정보를 불러오는 중 오류 발생: ${(e as Error).message}`);
         console.error("Failed to fetch patient detail:", e);
         setPatient(null);
       } finally {
@@ -143,12 +142,11 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-lg shadow-xl mb-6">
         <div className="flex items-center mb-4 sm:mb-0">
           <button onClick={() => setShowAboutTestModal(true)} className="p-2 rounded-full hover:bg-gray-100 transition-colors mr-2">
-            {/* 이 줄을 다음 Image 컴포넌트로 교체해주세요: */}
             <Image
-              src="/question_mark_icon.png" // <-- 물음표 아이콘 이미지 경로 (public 폴더에 넣어주세요)
+              src="/question_mark_icon.png"
               alt="About this test"
-              width={30} // 적절한 크기로 조정
-              height={30} // 적절한 크기로 조정
+              width={24}
+              height={24}
             />
           </button>
           <Image src="/predictiv_logo_small.png" alt="Predictiv Logo" width={30} height={30} className="mr-3"/>
@@ -191,7 +189,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 <EditIcon />
               </span>
             </h2>
-            <div className="text-gray-700 space-y-2 text-sm text-left"> {/* <-- 여기에 text-left 추가 */}
+            <div className="text-gray-700 space-y-2 text-sm text-left">
               <p><strong>나이:</strong> {patient.age || missingInfoText}</p>
               <p><strong>키:</strong> {patient.height || missingInfoText}</p>
               <p><strong>체중:</strong> {patient.weight || missingInfoText}</p>
@@ -209,7 +207,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 <EditIcon />
               </span>
             </h2>
-            <div className="text-gray-700 space-y-2 text-sm text-left"> {/* <-- 여기에 text-left 추가 */}
+            <div className="text-gray-700 space-y-2 text-sm text-left">
               <p><strong>운동:</strong> {missingInfoText}</p>
               <p><strong>흡연:</strong> {missingInfoText}</p>
               <p><strong>소금 섭취:</strong> {missingInfoText}</p>
@@ -221,7 +219,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
           {/* 건강 이력 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">건강 이력</h2>
-            <div className="text-gray-700 space-y-4 text-left"> {/* <-- 여기에 text-left 추가 */}
+            <div className="text-gray-700 space-y-4 text-left">
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <Image src="/medical_record_icon.png" alt="Medical Record" width={20} height={20} className="mr-2" />
@@ -269,17 +267,17 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
         {/* 오른쪽 열: 희귀 유전 질환, 약물 반응, 건강 관리, 유전자 상담, 내 보고서 */}
         <div className="space-y-6">
           {/* 희귀 유전 질환 */}
-          <section className="bg-white p-6 rounded-lg shadow-lg flex items-start justify-between"> {/* flex items-start 추가 */}
+          <section className="bg-white p-6 rounded-lg shadow-lg flex items-start justify-between">
             <div className="flex items-center space-x-4">
               <Image src="/dna_helix_icon.png" alt="DNA Helix" width={60} height={60} />
               <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-1">희귀 유전 질환</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-1">희귀 유전 질환</h2>
                 {isNewPatientWithPendingDNA ? (
                   <p className="text-blue-600 text-sm">{dataPendingText}</p>
                 ) : (
                   <>
-                    <p className="text-gray-600 text-sm">1666가지 변이 감지됨</p> {/* "1666 VARIANTS DETECTED" */}
-                    <div className="flex flex-col items-end text-right text-xs mt-2 space-y-1"> {/* 스크린샷처럼 오른쪽 정렬 및 세로 스택 */}
+                    <p className="text-gray-600 text-sm">1666가지 변이 감지됨</p>
+                    <div className="flex flex-col items-end text-right text-xs mt-2 space-y-1">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800 w-full justify-between">
                         <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span> {koreanTerms.actionable}: 0
                       </span>
@@ -302,8 +300,8 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 <Image
                     src="/info_circle_icon.png" // <-- 정보 아이콘 이미지 경로 (public 폴더에 넣어주세요)
                     alt="Info"
-                    width={24} // 적절한 크기로 조정
-                    height={24} // 적절한 크기로 조정
+                    width={24}
+                    height={24}
                 />
             </button>
           </section>
@@ -319,7 +317,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 ) : (
                   <>
                     <p className="text-gray-600 text-sm">총 45가지 약물 분석됨</p>
-                    <div className="flex items-center text-xs mt-2 flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 text-xs mt-2 space-x-3">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800">
                         <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span> {koreanTerms.actionable}: 14
                       </span>
@@ -344,7 +342,7 @@ export default function DigitalTwinDetail({ params }: { params: { id: string } }
                 ) : (
                   <>
                     <p className="text-gray-600 text-sm">총 54가지 유전자 테스트됨</p>
-                    <div className="flex items-center text-xs mt-2 space-x-3 flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 text-xs mt-2 space-x-3">
                       <div className="flex items-center">
                         <span className="text-blue-600 font-semibold text-base mr-1">8</span>
                         <span className="text-gray-600">영양</span>

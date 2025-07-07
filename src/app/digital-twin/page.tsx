@@ -107,8 +107,8 @@ export default function DigitalTwinDashboard() {
         }
         const data: Patient[] = await response.json();
         setPatients(data);
-      } catch (e: any) {
-        setError(`환자 데이터를 불러오는 데 실패했습니다: ${e.message}`);
+      } catch (e: unknown) {
+        setError(`환자 데이터를 불러오는 데 실패했습니다: ${(e as Error).message}`);
         console.error("Failed to fetch patients:", e);
       } finally {
         setLoading(false);
@@ -140,8 +140,8 @@ export default function DigitalTwinDashboard() {
       setPatients(prevPatients => [...prevPatients, addedPatient]);
       setIsAddPatientModalOpen(false);
       alert('새 환자가 성공적으로 추가되었습니다!');
-    } catch (e: any) {
-      alert(`환자 추가 중 오류 발생: ${e.message}`);
+    } catch (e: unknown) {
+      alert(`환자 추가 중 오류 발생: ${(e as Error).message}`);
       console.error("Failed to add new patient:", e);
     }
   };
@@ -167,8 +167,8 @@ export default function DigitalTwinDashboard() {
         const errorData = await response.json();
         throw new Error(`환자 삭제 실패: ${errorData.message || response.status}`);
       }
-    } catch (e: any) {
-      alert(`환자 삭제 중 오류 발생: ${e.message}`);
+    } catch (e: unknown) {
+      alert(`환자 삭제 중 오류 발생: ${(e as Error).message}`);
       console.error("Failed to delete patient:", e);
     } finally {
       setIsDeleteConfirmModalOpen(false);
@@ -198,8 +198,8 @@ export default function DigitalTwinDashboard() {
       setIsEditPatientModalOpen(false); // 모달 닫기
       alert(`${returnedPatient.name} 환자 정보가 성공적으로 업데이트되었습니다.`);
     }
-    catch (e: any) {
-      alert(`환자 정보 업데이트 중 오류 발생: ${e.message}`);
+    catch (e: unknown) {
+      alert(`환자 정보 업데이트 중 오류 발생: ${(e as Error).message}`);
       console.error("Failed to update patient:", e);
     }
   };
