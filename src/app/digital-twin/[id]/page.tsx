@@ -64,9 +64,10 @@ interface DigitalTwinDetailProps {
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-// ⛔️ 여기를 최종적으로 수정합니다.
-// searchParams를 받되, 사용하지 않으므로 변수명 앞에 '_'를 붙입니다.
-export default function DigitalTwinDetail({ params, searchParams: _searchParams }: DigitalTwinDetailProps) {
+// ⛔️ 이 부분이 최종 해결책입니다.
+// 다음 줄의 '사용하지 않는 변수' 규칙을 비활성화하는 주석을 추가합니다.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function DigitalTwinDetail({ params, searchParams }: DigitalTwinDetailProps) {
   const { id } = params;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showAboutTestModal, setShowAboutTestModal] = useState(false);
