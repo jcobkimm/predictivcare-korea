@@ -1,13 +1,13 @@
-// app/about/page.tsx
-// Image 컴포넌트는 사용하지 않으므로 임포트에서 제거
-// import Image from 'next/image';
+// src/app/about/page.tsx
+'use client';
+
+import Image from 'next/image';
 
 export default function AboutPage() {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* 제목 변경: 더 세련되고 간결하게 */}
       <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">프리딕티브 AI</h1>
-      <p className="text-xl text-gray-600 text-center mb-10">당신의 건강한 삶을 위한 디지털 동반자</p> {/* 부제목 추가 */}
+      <p className="text-xl text-gray-600 text-center mb-10">당신의 건강한 삶을 위한 디지털 동반자</p>
       
       <section className="bg-white p-8 rounded-lg shadow-md mb-8">
         <h2 className="text-2xl font-semibold text-blue-700 mb-4">우리의 비전</h2>
