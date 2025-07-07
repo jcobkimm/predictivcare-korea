@@ -5,9 +5,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import AboutTestModal from '../../../components/AboutTestModal';
 import RareDisorderInfoModal from '../../../components/RareDisorderInfoModal';
-import type { Patient, DNAStatusKey } from './page'; // 서버 컴포넌트에서 타입을 가져옵니다.
+import type { Patient, DNAStatusKey } from '@/types';
 
-// DNA 상태 한글 매핑
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Awaiting Sample': '샘플 대기 중',
   'Sample Received': '샘플 수령 완료',
@@ -21,17 +20,20 @@ const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
   'Analyzing': '데이터 분석 중',
 };
 
-// 클라이언트 페이지는 props로 환자 데이터를 받습니다.
 interface ClientPageProps {
   patient: Patient;
 }
 
 export default function ClientPage({ patient }: ClientPageProps) {
-  // 데이터 로딩, 에러 관련 useState와 useEffect가 모두 제거됩니다.
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showAboutTestModal, setShowAboutTestModal] = useState(false);
   const [showRareDisorderInfoModal, setShowRareDisorderInfoModal] = useState(false);
   
+  const handleEditClick = (sectionName: string) => {
+    alert(`${sectionName} 수정 기능은 아직 구현되지 않았습니다.`);
+    console.log(`${sectionName} edit clicked for patient: ${patient.id}`);
+  };
+
   const koreanTerms = {
     actionable: '의학적 조치 필요',
     significant: '주요 변이',
@@ -41,22 +43,22 @@ export default function ClientPage({ patient }: ClientPageProps) {
     wellness: '건강 관리',
   };
 
-  const handleEditClick = (sectionName: string) => {
-    alert(`${sectionName} 수정 기능은 아직 구현되지 않았습니다.`);
-    console.log(`${sectionName} edit clicked for patient: ${patient.id}`);
-  };
-
   const missingInfoText = "정보 없음";
   const dataPendingText = "DNA 샘플 대기 중";
   const isNewPatientWithPendingDNA = patient.dnaStatus === 'Awaiting Sample';
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* 이 아래 JSX 부분은 기존 page.tsx와 완전히 동일합니다. */}
+      {/* 상단 헤더 */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-lg shadow-xl mb-6">
         <div className="flex items-center mb-4 sm:mb-0">
           <button onClick={() => setShowAboutTestModal(true)} className="p-2 rounded-full hover:bg-gray-100 transition-colors mr-2">
-            <Image src="/question_mark_icon.png" alt="About this test" width={24} height={24} />
+            <Image
+              src="/question_mark_icon.png"
+              alt="About this test"
+              width={24}
+              height={24}
+            />
           </button>
           <Image src="/predictiv_logo_small.png" alt="Predictiv Logo" width={30} height={30} className="mr-3"/>
           <h1 className="text-xl font-bold text-gray-800">
@@ -77,6 +79,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
         </div>
       </div>
 
+      {/* 환자 건강 요약 */}
       <section className="bg-blue-100 p-4 rounded-lg shadow-lg mb-6 border border-blue-200">
         <h2 className="text-lg font-semibold text-blue-800 mb-2">환자 건강 요약</h2>
         <p className="text-blue-700 text-sm leading-relaxed">
@@ -84,8 +87,11 @@ export default function ClientPage({ patient }: ClientPageProps) {
         </p>
       </section>
 
+      {/* 메인 콘텐츠 영역: 두 열 레이아웃 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 왼쪽 열: 기본 정보, 생활 습관, 건강 이력 */}
         <div className="space-y-6">
+          {/* 기본 정보 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
               <Image src="/user_info_icon.png" alt="User Info" width={30} height={30} className="mr-2" />
@@ -103,6 +109,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
             </div>
           </section>
 
+          {/* 생활 습관 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
               <Image src="/lifestyle_icon.png" alt="Lifestyle" width={30} height={30} className="mr-2" />
@@ -120,6 +127,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
             </div>
           </section>
 
+          {/* 건강 이력 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">건강 이력</h2>
             <div className="text-gray-700 space-y-4 text-left">
@@ -167,7 +175,9 @@ export default function ClientPage({ patient }: ClientPageProps) {
           </section>
         </div>
 
+        {/* 오른쪽 열: 희귀 유전 질환, 약물 반응, 건강 관리, 유전자 상담, 내 보고서 */}
         <div className="space-y-6">
+          {/* 희귀 유전 질환 */}
           <section className="bg-white p-6 rounded-lg shadow-lg flex items-start justify-between">
             <div className="flex items-center space-x-4">
               <Image src="/dna_helix_icon.png" alt="DNA Helix" width={60} height={60} />
@@ -197,10 +207,16 @@ export default function ClientPage({ patient }: ClientPageProps) {
               </div>
             </div>
             <button onClick={() => setShowRareDisorderInfoModal(true)} className="p-2 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0">
-                <Image src="/info_circle_icon.png" alt="Info" width={24} height={24} />
+                <Image
+                    src="/info_circle_icon.png"
+                    alt="Info"
+                    width={24}
+                    height={24}
+                />
             </button>
           </section>
 
+          {/* 약물 반응 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex items-center space-x-4">
               <Image src="/pill_icon.png" alt="Pill" width={60} height={60} />
@@ -225,6 +241,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
             </div>
           </section>
 
+          {/* 건강 관리 (웰니스 의역) */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex items-center space-x-4">
               <Image src="/leaf_icon.png" alt="Leaf" width={60} height={60} />
@@ -255,6 +272,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
             </div>
           </section>
 
+          {/* 유전자 상담 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">유전자 상담</h2>
             <p className="text-gray-700 text-sm mb-4">
@@ -275,6 +293,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
             )}
           </section>
 
+          {/* 내 보고서 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
               내 보고서
@@ -289,6 +308,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
             </p>
           </section>
 
+          {/* 담당 매니저와 채팅 */}
           <section className="bg-white p-6 rounded-lg shadow-lg">
             <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold flex items-center">
               <ChatIcon />
@@ -298,11 +318,13 @@ export default function ClientPage({ patient }: ClientPageProps) {
         </div>
       </div>
 
+      {/* Disclaimer 텍스트 및 팝업 트리거 */}
       <div className="fixed bottom-4 left-4 text-gray-600 text-sm cursor-pointer hover:underline z-40"
            onClick={() => setShowDisclaimer(true)}>
         *면책 조항
       </div>
 
+      {/* Disclaimer 팝업 모달 */}
       {showDisclaimer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full text-center">
@@ -320,6 +342,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
         </div>
       )}
 
+      {/* AboutTestModal 렌더링 */}
       {showAboutTestModal && (
         <AboutTestModal
           isOpen={showAboutTestModal}
@@ -327,6 +350,7 @@ export default function ClientPage({ patient }: ClientPageProps) {
         />
       )}
 
+      {/* RareDisorderInfoModal 렌더링 추가 */}
       {showRareDisorderInfoModal && (
         <RareDisorderInfoModal
           isOpen={showRareDisorderInfoModal}
