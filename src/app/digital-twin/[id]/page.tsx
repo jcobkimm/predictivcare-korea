@@ -12,7 +12,8 @@ async function getPatient(id: string): Promise<Patient | null> {
   try {
     // Vercel 배포 환경에서는 localhost 대신 실제 API 주소를 사용해야 합니다.
     // 우선은 로컬 테스트를 위해 그대로 둡니다.
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${id}`, {
+    //const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${id}`, {
+    const response = await fetch(`http://[::1]:8080/patients/${id}`, {
       cache: 'no-store', 
     });
     if (!response.ok) {

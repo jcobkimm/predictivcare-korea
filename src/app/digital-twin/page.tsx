@@ -101,7 +101,8 @@ export default function DigitalTwinDashboard() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients');
+        //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients');
+        const response = await fetch('http://[::1]:8080/patients');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -124,7 +125,8 @@ export default function DigitalTwinDashboard() {
 
   const handleAddNewPatient = async (newPatientData: Patient) => {
     try {
-      const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients', {
+      //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients', {
+      const response = await fetch('http://[::1]:8080/patients', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +158,8 @@ export default function DigitalTwinDashboard() {
     if (!patientToDelete) return;
 
     try {
-      const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${patientToDelete.id}', {
+      //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${patientToDelete.id}', {
+      const response = await fetch('http://[::1]:8080/patients/${patientToDelete.id}', {
         method: 'DELETE',
       });
 
@@ -179,7 +182,8 @@ export default function DigitalTwinDashboard() {
   // 환자 정보 업데이트 함수 (EditPatientModal에서 호출)
   const handleUpdatePatient = async (updatedPatientData: Patient) => {
     try {
-      const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${updatedPatientData.id}', {
+      //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${updatedPatientData.id}', {
+      const response = await fetch('http://[::1]:8080/patients/${updatedPatientData.id}', {
         method: 'PATCH', // 또는 'PUT' (부분 업데이트이므로 PATCH가 더 적합)
         headers: {
           'Content-Type': 'application/json',
