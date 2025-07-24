@@ -1,43 +1,42 @@
-// app/digital-twin/page.tsx
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import AddPatientModal from '../../components/AddPatientModal';
-import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
-import EditPatientModal from '../../components/EditPatientModal'; // EditPatientModal 임포트 확인
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import AddPatientModal from "../../components/AddPatientModal";
+import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
+import EditPatientModal from "../../components/EditPatientModal"; // EditPatientModal 임포트 확인
 
 // DNA 분석 상태 타입 정의 (이전과 동일)
 export type DNAStatusKey =
-  | 'Awaiting Sample'
-  | 'Sample Received'
-  | 'Sample Extracted'
-  | 'DNA Sequenced'
-  | 'DNA Analyzed'
-  | 'Building Digital Twin'
-  | 'Awaiting Genetic Counseling'
-  | 'Not reachable'
-  | 'Completed'
-  | 'Analyzing';
+  | "Awaiting Sample"
+  | "Sample Received"
+  | "Sample Extracted"
+  | "DNA Sequenced"
+  | "DNA Analyzed"
+  | "Building Digital Twin"
+  | "Awaiting Genetic Counseling"
+  | "Not reachable"
+  | "Completed"
+  | "Analyzing";
 
 // DNA 분석 상태 매핑 (이전과 동일)
 const DNA_STATUS_MAP: Record<DNAStatusKey, string> = {
-  'Awaiting Sample': '샘플 대기 중',
-  'Sample Received': '샘플 수령 완료',
-  'Sample Extracted': '샘플 추출 완료',
-  'DNA Sequenced': 'DNA 서열 분석 완료',
-  'DNA Analyzed': 'DNA 데이터 분석 완료',
-  'Building Digital Twin': '디지털 트윈 생성 중',
-  'Awaiting Genetic Counseling': '유전자 상담 대기 중',
-  'Not reachable': '연락 불가',
-  'Completed': '모든 과정 완료',
-  'Analyzing': '데이터 분석 중',
+  "Awaiting Sample": "샘플 대기 중",
+  "Sample Received": "샘플 수령 완료",
+  "Sample Extracted": "샘플 추출 완료",
+  "DNA Sequenced": "DNA 서열 분석 완료",
+  "DNA Analyzed": "DNA 데이터 분석 완료",
+  "Building Digital Twin": "디지털 트윈 생성 중",
+  "Awaiting Genetic Counseling": "유전자 상담 대기 중",
+  "Not reachable": "연락 불가",
+  Completed: "모든 과정 완료",
+  Analyzing: "데이터 분석 중",
 };
 
 // 환자 데이터 인터페이스 (백엔드 및 AddPatientModal과 동일하게 유지)
 interface Patient {
   id: string;
-  name: string; // 성 + 이름
+  name: string;
   firstName: string;
   lastName: string;
   dnaStatus: DNAStatusKey;
@@ -57,44 +56,52 @@ interface Patient {
   state?: string;
   zipcode?: string;
   country?: string;
-  // survey 관련 필드들은 모두 제거합니다.
 }
-
 
 export default function DigitalTwinDashboard() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchField, setSearchField] = useState('name');
-  const [dnaStatusFilter, setDnaStatusFilter] = useState<DNAStatusKey | 'All'>('All');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchField, setSearchField] = useState("name");
+  const [dnaStatusFilter, setDnaStatusFilter] = useState<DNAStatusKey | "All">(
+    "All"
+  );
   const [showDeletedPatients, setShowDeletedPatients] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
-  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
-  const [patientToDelete, setPatientToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
+    useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   // Edit 기능 관련 상태
   const [isEditPatientModalOpen, setIsEditPatientModalOpen] = useState(false); // 수정 모달 상태
   const [patientToEdit, setPatientToEdit] = useState<Patient | null>(null); // 수정할 환자 정보
-  const [showContextMenuId, setShowContextMenuId] = useState<string | null>(null); // 컨텍스트 메뉴 표시 상태
+  const [showContextMenuId, setShowContextMenuId] = useState<string | null>(
+    null
+  ); // 컨텍스트 메뉴 표시 상태
   const contextMenuRef = useRef<HTMLDivElement>(null); // 컨텍스트 메뉴 Ref
 
   // 외부 클릭 감지하여 컨텍스트 메뉴 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target as Node)
+      ) {
         setShowContextMenuId(null);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -102,14 +109,18 @@ export default function DigitalTwinDashboard() {
         setLoading(true);
         setError(null);
         //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients');
-        const response = await fetch('https://intern-digital-twin-api-138586074363.asia-northeast3.run.app/patients');
+        const response = await fetch(
+          "https://intern.api.aipredictive.com/patients"
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: Patient[] = await response.json();
         setPatients(data);
       } catch (e: unknown) {
-        setError(`환자 데이터를 불러오는 데 실패했습니다: ${(e as Error).message}`);
+        setError(
+          `환자 데이터를 불러오는 데 실패했습니다: ${(e as Error).message}`
+        );
         console.error("Failed to fetch patients:", e);
       } finally {
         setLoading(false);
@@ -126,22 +137,25 @@ export default function DigitalTwinDashboard() {
   const handleAddNewPatient = async (newPatientData: Patient) => {
     try {
       //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients', {
-      const response = await fetch('https://intern-digital-twin-api-138586074363.asia-northeast3.run.app/patients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newPatientData),
-      });
+      const response = await fetch(
+        "https://intern.api.aipredictive.com/patients",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newPatientData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`환자 추가 실패: ${response.status}`);
       }
 
       const addedPatient: Patient = await response.json();
-      setPatients(prevPatients => [...prevPatients, addedPatient]);
+      setPatients((prevPatients) => [...prevPatients, addedPatient]);
       setIsAddPatientModalOpen(false);
-      alert('새 환자가 성공적으로 추가되었습니다!');
+      alert("새 환자가 성공적으로 추가되었습니다!");
     } catch (e: unknown) {
       alert(`환자 추가 중 오류 발생: ${(e as Error).message}`);
       console.error("Failed to add new patient:", e);
@@ -149,9 +163,10 @@ export default function DigitalTwinDashboard() {
   };
 
   const handleDeletePatient = async (password: string) => {
-    const storedSimulatedPassword = localStorage.getItem('simulated_password') || 'qweasd31d';
+    const storedSimulatedPassword =
+      localStorage.getItem("simulated_password") || "qweasd31d";
     if (password !== storedSimulatedPassword) {
-      alert('비밀번호가 일치하지 않습니다. 삭제할 수 없습니다.');
+      alert("비밀번호가 일치하지 않습니다. 삭제할 수 없습니다.");
       return;
     }
 
@@ -159,16 +174,23 @@ export default function DigitalTwinDashboard() {
 
     try {
       //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${patientToDelete.id}', {
-      const response = await fetch('https://intern-digital-twin-api-138586074363.asia-northeast3.run.app/patients/${patientToDelete.id}', {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        "https://intern.api.aipredictive.com/patients/${patientToDelete.id}",
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.status === 204) {
-        setPatients(prevPatients => prevPatients.filter(p => p.id !== patientToDelete.id));
+        setPatients((prevPatients) =>
+          prevPatients.filter((p) => p.id !== patientToDelete.id)
+        );
         alert(`${patientToDelete.name} 환자 정보가 성공적으로 삭제되었습니다.`);
       } else {
         const errorData = await response.json();
-        throw new Error(`환자 삭제 실패: ${errorData.message || response.status}`);
+        throw new Error(
+          `환자 삭제 실패: ${errorData.message || response.status}`
+        );
       }
     } catch (e: unknown) {
       alert(`환자 삭제 중 오류 발생: ${(e as Error).message}`);
@@ -183,46 +205,55 @@ export default function DigitalTwinDashboard() {
   const handleUpdatePatient = async (updatedPatientData: Patient) => {
     try {
       //const response = await fetch('${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${updatedPatientData.id}', {
-      const response = await fetch('https://intern-digital-twin-api-138586074363.asia-northeast3.run.app/patients/${updatedPatientData.id}', {
-        method: 'PATCH', // 또는 'PUT' (부분 업데이트이므로 PATCH가 더 적합)
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedPatientData),
-      });
+      const response = await fetch(
+        "https://intern.api.aipredictive.com/patients/${updatedPatientData.id}",
+        {
+          method: "PATCH", // 또는 'PUT' (부분 업데이트이므로 PATCH가 더 적합)
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedPatientData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`환자 정보 업데이트 실패: ${response.status}`);
       }
 
       const returnedPatient: Patient = await response.json();
-      setPatients(prevPatients => prevPatients.map(p => 
-        p.id === returnedPatient.id ? returnedPatient : p
-      )); // 프론트엔드 목록 업데이트
+      setPatients((prevPatients) =>
+        prevPatients.map((p) =>
+          p.id === returnedPatient.id ? returnedPatient : p
+        )
+      ); // 프론트엔드 목록 업데이트
       setIsEditPatientModalOpen(false); // 모달 닫기
-      alert(`${returnedPatient.name} 환자 정보가 성공적으로 업데이트되었습니다.`);
-    }
-    catch (e: unknown) {
+      alert(
+        `${returnedPatient.name} 환자 정보가 성공적으로 업데이트되었습니다.`
+      );
+    } catch (e: unknown) {
       alert(`환자 정보 업데이트 중 오류 발생: ${(e as Error).message}`);
       console.error("Failed to update patient:", e);
     }
   };
 
-
-  const filteredPatients = patients.filter(patient => {
+  const filteredPatients = patients.filter((patient) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     let matchesSearch = true;
 
     if (searchTerm) {
-      if (searchField === 'name') {
-        const fullNameKor = (patient.lastName || '') + (patient.firstName || '');
-        const fullNameEng = (patient.firstName || '') + ' ' + (patient.lastName || '');
-        matchesSearch = fullNameKor.toLowerCase().includes(lowerCaseSearchTerm) ||
-                        fullNameEng.toLowerCase().includes(lowerCaseSearchTerm);
+      if (searchField === "name") {
+        const fullNameKor =
+          (patient.lastName || "") + (patient.firstName || "");
+        const fullNameEng =
+          (patient.firstName || "") + " " + (patient.lastName || "");
+        matchesSearch =
+          fullNameKor.toLowerCase().includes(lowerCaseSearchTerm) ||
+          fullNameEng.toLowerCase().includes(lowerCaseSearchTerm);
       }
     }
-    
-    const matchesDnaStatus = dnaStatusFilter === 'All' || patient.dnaStatus === dnaStatusFilter;
+
+    const matchesDnaStatus =
+      dnaStatusFilter === "All" || patient.dnaStatus === dnaStatusFilter;
     const matchesDeleted = !showDeletedPatients;
 
     return matchesSearch && matchesDnaStatus && matchesDeleted;
@@ -248,12 +279,24 @@ export default function DigitalTwinDashboard() {
           </select>
           <input
             type="text"
-            placeholder={`${searchField === 'name' ? '이름' : searchField === 'diseases' ? '질병' : searchField === 'symptoms' ? '증상' : searchField === 'drugs' ? '약물' : searchField === 'genes' ? '유전자' : ''} 검색...`}
+            placeholder={`${
+              searchField === "name"
+                ? "이름"
+                : searchField === "diseases"
+                ? "질병"
+                : searchField === "symptoms"
+                ? "증상"
+                : searchField === "drugs"
+                ? "약물"
+                : searchField === "genes"
+                ? "유전자"
+                : ""
+            } 검색...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="border border-gray-300 rounded-lg p-2 flex-1 min-w-[150px] text-gray-900 placeholder-gray-400"
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 handleSearch();
               }
             }}
@@ -263,12 +306,16 @@ export default function DigitalTwinDashboard() {
         <div className="flex items-center space-x-2">
           <select
             value={dnaStatusFilter}
-            onChange={(e) => setDnaStatusFilter(e.target.value as DNAStatusKey | 'All')}
+            onChange={(e) =>
+              setDnaStatusFilter(e.target.value as DNAStatusKey | "All")
+            }
             className="border border-gray-300 rounded-lg p-2 text-gray-700 bg-white"
           >
             <option value="All">전체 DNA 분석 상태</option>
             {Object.entries(DNA_STATUS_MAP).map(([key, value]) => (
-              <option key={key} value={key}>{value}</option>
+              <option key={key} value={key}>
+                {value}
+              </option>
             ))}
           </select>
         </div>
@@ -287,34 +334,41 @@ export default function DigitalTwinDashboard() {
             onChange={(e) => setShowDeletedPatients(e.target.checked)}
             className="mr-2 accent-blue-600"
           />
-          <label htmlFor="showDeleted" className="text-gray-700 text-sm">삭제된 환자 보기</label>
+          <label htmlFor="showDeleted" className="text-gray-700 text-sm">
+            삭제된 환자 보기
+          </label>
         </div>
       </div>
 
       {/* 환자 목록 */}
       {loading ? (
-        <div className="text-center py-10 text-gray-600">환자 데이터를 불러오는 중입니다...</div>
+        <div className="text-center py-10 text-gray-600">
+          환자 데이터를 불러오는 중입니다...
+        </div>
       ) : error ? (
         <div className="text-center py-10 text-red-600">오류: {error}</div>
       ) : filteredPatients.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
-          {filteredPatients.map(patient => (
+          {filteredPatients.map((patient) => (
             <div
               key={patient.id}
               className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 border border-gray-100 flex items-center"
             >
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold mr-4 flex-shrink-0">
-                {patient.lastName ? patient.lastName.charAt(0) : ''}
+                {patient.lastName ? patient.lastName.charAt(0) : ""}
               </div>
               <div className="flex-grow">
                 <Link href={`/digital-twin/${patient.id}`} className="block">
                   <h3 className="text-lg font-semibold text-gray-800">
-                    {patient.lastName}{patient.firstName}
+                    {patient.lastName}
+                    {patient.firstName}
                   </h3>
                   <p className="text-blue-600 text-sm font-medium">
                     DNA {DNA_STATUS_MAP[patient.dnaStatus]}
                   </p>
-                  <p className="text-gray-500 text-xs">PREDICTIV ID {patient.dnaId}</p>
+                  <p className="text-gray-500 text-xs">
+                    PREDICTIV ID {patient.dnaId}
+                  </p>
                   {patient.dob && (
                     <p className="text-gray-500 text-xs">DOB: {patient.dob}</p>
                   )}
@@ -326,7 +380,9 @@ export default function DigitalTwinDashboard() {
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowContextMenuId(showContextMenuId === patient.id ? null : patient.id);
+                    setShowContextMenuId(
+                      showContextMenuId === patient.id ? null : patient.id
+                    );
                   }}
                 >
                   &#8226;&#8226;&#8226;
@@ -346,7 +402,10 @@ export default function DigitalTwinDashboard() {
                     <button
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => {
-                        setPatientToDelete({ id: patient.id, name: patient.lastName + patient.firstName });
+                        setPatientToDelete({
+                          id: patient.id,
+                          name: patient.lastName + patient.firstName,
+                        });
                         setIsDeleteConfirmModalOpen(true);
                         setShowContextMenuId(null);
                       }}
@@ -372,18 +431,30 @@ export default function DigitalTwinDashboard() {
           onClick={() => setIsAddPatientModalOpen(true)}
         >
           <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white mr-3">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              ></path>
             </svg>
           </span>
           새 환자 추가
         </button>
       </div>
 
-
       {/* Disclaimer 텍스트 및 팝업 트리거 */}
-      <div className="fixed bottom-4 left-4 text-gray-600 text-sm cursor-pointer hover:underline z-40"
-           onClick={() => setShowDisclaimer(true)}>
+      <div
+        className="fixed bottom-4 left-4 text-gray-600 text-sm cursor-pointer hover:underline z-40"
+        onClick={() => setShowDisclaimer(true)}
+      >
         *면책 조항
       </div>
 
@@ -393,7 +464,11 @@ export default function DigitalTwinDashboard() {
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full text-center">
             <h2 className="text-xl font-bold mb-4 text-gray-800">면책 조항</h2>
             <p className="text-gray-700 text-sm leading-relaxed mb-6">
-              본 웹사이트의 정보는 직접적인 진단 목적 또는 유전학 전문가의 검토 없는 의료적 의사 결정에 사용되지 않습니다. 본 검사는 모든 유전적 발견을 보고하지 않습니다. 개인은 본 웹사이트에 포함된 정보만을 근거로 건강 행동을 변경해서는 안 됩니다. 본 웹사이트의 정보에 대해 궁금한 점이 있으면 의료 전문가에게 문의하시기 바랍니다.
+              본 웹사이트의 정보는 직접적인 진단 목적 또는 유전학 전문가의 검토
+              없는 의료적 의사 결정에 사용되지 않습니다. 본 검사는 모든 유전적
+              발견을 보고하지 않습니다. 개인은 본 웹사이트에 포함된 정보만을
+              근거로 건강 행동을 변경해서는 안 됩니다. 본 웹사이트의 정보에 대해
+              궁금한 점이 있으면 의료 전문가에게 문의하시기 바랍니다.
             </p>
             <button
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold"

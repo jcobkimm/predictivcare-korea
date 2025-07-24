@@ -1,8 +1,5 @@
-// src/app/digital-twin/[id]/page.tsx
-
-import ClientPage from './client-page';
-// ✅ 올바른 경로 별칭으로 수정합니다.
-import type { Patient } from '@/types'; 
+import ClientPage from "./client-page";
+import type { Patient } from "@/types";
 
 interface PageProps {
   params: { id: string };
@@ -10,12 +7,13 @@ interface PageProps {
 
 async function getPatient(id: string): Promise<Patient | null> {
   try {
-    // Vercel 배포 환경에서는 localhost 대신 실제 API 주소를 사용해야 합니다.
-    // 우선은 로컬 테스트를 위해 그대로 둡니다.
     //const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/patients/${id}`, {
-    const response = await fetch(`https://intern-digital-twin-api-138586074363.asia-northeast3.run.app/patients/${id}`, {
-      cache: 'no-store', 
-    });
+    const response = await fetch(
+      `https://intern.api.aipredictive.com/patients/${id}`,
+      {
+        cache: "no-store",
+      }
+    );
     if (!response.ok) {
       console.error(`Error fetching patient ${id}: ${response.status}`);
       return null;
@@ -37,7 +35,6 @@ export default async function DigitalTwinDetailPage({ params }: PageProps) {
       </div>
     );
   }
-  
-  // ✅ prop 이름을 initialPatient에서 patient로 변경하여 명확하게 합니다.
+
   return <ClientPage patient={patient} />;
 }
